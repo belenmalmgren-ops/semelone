@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../data/repositories/dict_repository.dart';
+import '../../services/handwriting_recognition_service.dart';
 import 'character_detail_page.dart';
 
 /// 手写识别页面
@@ -14,6 +15,7 @@ class HandwritingSearchPage extends StatefulWidget {
 
 class _HandwritingSearchPageState extends State<HandwritingSearchPage> {
   final DictRepository _repository = DictRepository.instance;
+  final HandwritingRecognitionService _recognitionService = HandwritingRecognitionService.instance;
 
   // 手写板相关
   List<List<Offset>> _strokes = [];
@@ -23,6 +25,18 @@ class _HandwritingSearchPageState extends State<HandwritingSearchPage> {
   // 识别结果
   List<String> _candidates = [];
   bool _isRecognizing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _recognitionService.initialize();
+  }
+
+  @override
+  void dispose() {
+    _recognitionService.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -288,15 +302,22 @@ class _HandwritingSearchPageState extends State<HandwritingSearchPage> {
       _isRecognizing = true;
     });
 
-    // TODO: 调用 ML Kit 或其他手写识别服务
-    // 这里使用模拟数据
-    await Future.delayed(const Duration(seconds: 1));
-
-    // 模拟识别结果（实际应调用识别 API）
-    setState(() {
-      _candidates = ['我', '手', '才', '戈']; // 示例候选字
-      _isRecognizing = false;
-    });
+    try {
+      final results = await _recognitionService.recognize(_strokes);
+      setState(() {
+        _candidates = results.take(8).toList();
+        _isRecognizing = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isRecognizing = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('识别失败: $e')),
+        );
+      }
+    }
   }
 
   /// 选择候选字
