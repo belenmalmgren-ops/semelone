@@ -1,0 +1,130 @@
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
+
+/// 数据库帮助类 - 负责初始化和版本管理
+class DatabaseHelper {
+  static final DatabaseHelper instance = DatabaseHelper._init();
+  static Database? _database;
+
+  DatabaseHelper._init();
+
+  /// 获取数据库实例（单例模式）
+  Future<Database> get database async {
+    if (_database != null) return _database!;
+    _database = await _initDatabase();
+    return _database!;
+  }
+
+  /// 初始化数据库
+  Future<Database> _initDatabase() async {
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, 'xinhua_dict.db');
+
+    print('[DatabaseHelper] 数据库路径：$path');
+
+    return await openDatabase(
+      path,
+      version: 1,
+      onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
+      // 性能优化：预连接池和缓存
+      singleInstance: true,
+    );
+  }
+
+  /// 创建数据库表
+  Future<void> _onCreate(Database db, int version) async {
+    print('[DatabaseHelper] 开始创建数据库表...');
+
+    // 创建 characters 表（核心词库）
+    await db.execute('''
+      CREATE TABLE characters (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        char TEXT UNIQUE NOT NULL,
+        pinyin TEXT NOT NULL,
+        radical TEXT,
+        stroke_count INTEGER,
+        structure TEXT,
+        definitions TEXT,
+        words TEXT,
+        examples TEXT,
+        origin TEXT,
+        stroke_order TEXT
+      )
+    ''');
+    print('[DatabaseHelper] ✓ characters 表创建完成');
+
+    // 创建索引（优化查询性能）
+    await db.execute('CREATE INDEX idx_pinyin ON characters(pinyin)');
+    await db.execute('CREATE INDEX idx_radical ON characters(radical)');
+    await db.execute('CREATE INDEX idx_stroke ON characters(stroke_count)');
+    await db.execute(
+        'CREATE INDEX idx_pinyin_stroke ON characters(pinyin, stroke_count)');
+    print('[DatabaseHelper] ✓ 索引创建完成');
+
+    // 创建 FTS5 全文检索索引
+    await db.execute('''
+      CREATE VIRTUAL TABLE characters_fts USING fts5(
+        char,
+        pinyin,
+        definitions,
+        content='characters'
+      )
+    ''');
+    print('[DatabaseHelper] ✓ FTS5 全文检索索引创建完成');
+
+    // 创建触发器（自动同步 FTS 索引）
+    await db.execute('''
+      CREATE TRIGGER characters_ai AFTER INSERT ON characters BEGIN
+        INSERT INTO characters_fts(rowid, char, pinyin, definitions)
+        VALUES (new.id, new.char, new.pinyin, new.definitions);
+      END
+    ''');
+
+    await db.execute('''
+      CREATE TRIGGER characters_ad AFTER DELETE ON characters BEGIN
+        INSERT INTO characters_fts(characters_fts, rowid, char, pinyin, definitions)
+        VALUES('delete', old.id, old.char, old.pinyin, old.definitions);
+      END
+    ''');
+
+    await db.execute('''
+      CREATE TRIGGER characters_au AFTER UPDATE ON characters BEGIN
+        INSERT INTO characters_fts(characters_fts, rowid, char, pinyin, definitions)
+        VALUES('delete', old.id, old.char, old.pinyin, old.definitions);
+        INSERT INTO characters_fts(rowid, char, pinyin, definitions)
+        VALUES (new.id, new.char, new.pinyin, new.definitions);
+      END
+    ''');
+    print('[DatabaseHelper] ✓ FTS 触发器创建完成');
+
+    print('[DatabaseHelper] 数据库初始化完成！');
+  }
+
+  /// 数据库升级处理
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    print('[DatabaseHelper] 数据库升级：v$oldVersion -> v$newVersion');
+    // 未来版本升级逻辑
+  }
+
+  /// 重置数据库（用于测试或重新初始化）
+  Future<void> resetDatabase() async {
+    if (_database != null) {
+      await _database!.close();
+      _database = null;
+    }
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, 'xinhua_dict.db');
+    await deleteDatabase(path);
+    print('[DatabaseHelper] 数据库已重置');
+  }
+
+  /// 获取数据库统计信息
+  Future<Map<String, int>> getStats() async {
+    final db = await database;
+    final count = Sqflite.firstIntValue(
+            await db.rawQuery('SELECT COUNT(*) FROM characters')) ??
+        0;
+    return {'characters': count};
+  }
+}

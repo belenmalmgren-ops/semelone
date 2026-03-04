@@ -1,0 +1,81 @@
+name: Android APK Build
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24'
+          channel: 'stable'
+          cache: true
+
+      - name: Check Flutter version
+        run: flutter --version
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze code
+        run: flutter analyze
+
+      - name: Build APK Debug
+        run: flutter build apk --debug
+
+      - name: Build APK Release
+        run: flutter build apk --release
+
+      - name: Get APK info
+        run: |
+          echo "=== APK 文件信息 ==="
+          ls -lh build/app/outputs/flutter-apk/
+          echo "Debug APK: $(du -h build/app/outputs/flutter-apk/app-debug.apk | cut -f1)"
+          echo "Release APK: $(du -h build/app/outputs/flutter-apk/app-release.apk | cut -f1)"
+
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: xiaofang_dict-android-debug
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 30
+
+      - name: Upload Release APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: xiaofang_dict-android-release
+          path: build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30
+
+      - name: Build Summary
+        if: always()
+        run: |
+          echo "## 📱 Android 构建完成" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✅ 构建成功！" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 下载链接" >> $GITHUB_STEP_SUMMARY
+          echo "- **Debug 版本**: 在上方 Artifacts 中下载 \`xiaofang_dict-android-debug\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Release 版本**: 在上方 Artifacts 中下载 \`xiaofang_dict-android-release\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 安装说明" >> $GITHUB_STEP_SUMMARY
+          echo "1. 下载 APK 文件" >> $GITHUB_STEP_SUMMARY
+          echo "2. 传输到安卓手机" >> $GITHUB_STEP_SUMMARY
+          echo "3. 点击安装（需要允许未知来源）" >> $GITHUB_STEP_SUMMARY

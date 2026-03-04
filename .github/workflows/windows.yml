@@ -1,0 +1,96 @@
+name: Windows EXE Build
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    name: Build Windows EXE
+    runs-on: windows-latest
+    timeout-minutes: 40
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24'
+          channel: 'stable'
+          cache: true
+
+      - name: Check Flutter version
+        run: flutter --version
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze code
+        run: flutter analyze
+
+      - name: Build Windows Release
+        run: flutter build windows --release
+
+      - name: Create Distribution Package
+        shell: pwsh
+        run: |
+          # 创建发布目录
+          $publishDir = "build/dist/windows"
+          New-Item -ItemType Directory -Force -Path $publishDir | Out-Null
+
+          # 复制发布文件
+          Copy-Item -Path "build/windows/runner/Release/*" -Destination $publishDir -Recurse -Force
+
+          # 显示文件大小
+          $totalSize = (Get-ChildItem $publishDir -Recurse | Measure-Object -Property Length -Sum).Sum / 1MB
+          Write-Host "=== Windows 应用信息 ==="
+          Write-Host "总大小：{0:N2} MB" -f $totalSize
+          Write-Host "文件列表:"
+          Get-ChildItem $publishDir -Recurse -File | Select-Object Name, @{Name="Size(MB)";Expression={[math]::Round($_.Length/1MB,2)}} | Format-Table
+
+          # 压缩
+          Compress-Archive -Path "$publishDir\*" -DestinationPath "build/xiaofang_dict_windows.zip" -Force
+          $zipSize = (Get-Item "build/xiaofang_dict_windows.zip").Length / 1MB
+          Write-Host "压缩后大小：{0:N2} MB" -f $zipSize
+
+      - name: Upload Windows Package (ZIP)
+        uses: actions/upload-artifact@v4
+        with:
+          name: xiaofang_dict-windows-zip
+          path: build/xiaofang_dict_windows.zip
+          retention-days: 30
+
+      - name: Upload Windows EXE (Direct)
+        uses: actions/upload-artifact@v4
+        with:
+          name: xiaofang_dict-windows-exe
+          path: build/windows/runner/Release/xiaofang_dict.exe
+          retention-days: 30
+
+      - name: Build Summary
+        if: always()
+        run: |
+          $zipSize = (Get-Item "build/xiaofang_dict_windows.zip").Length / 1MB
+          $summary = @"
+          ## 🪟 Windows 构建完成
+
+          ✅ 构建成功！
+
+          ### 下载链接
+          - **完整安装包 (ZIP)**: 在上方 Artifacts 中下载 \`xiaofang_dict-windows-zip\` (${zipSize} MB)
+          - **单独 EXE**: 在上方 Artifacts 中下载 \`xiaofang_dict-windows-exe\`
+
+          ### 安装说明
+          1. 下载 ZIP 压缩包
+          2. 解压到任意目录（如 C:\Program Files\XiaoFangDict）
+          3. 运行 xiaofang_dict.exe 即可使用
+          4. 可创建桌面快捷方式
+
+          ### 系统要求
+          - Windows 10 或更高版本
+          - 64 位操作系统
+          "@
+          $summary | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8
