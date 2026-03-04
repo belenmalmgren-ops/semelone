@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:google_mlkit_digital_ink_recognition/google_mlkit_digital_ink_recognition.dart' as mlkit;
 
@@ -10,10 +11,11 @@ class HandwritingRecognitionService {
 
   mlkit.DigitalInkRecognizer? _recognizer;
   bool _isModelDownloaded = false;
+  final bool _isSupported = !Platform.isWindows && !Platform.isLinux;
 
   /// 初始化识别器（中文简体）
   Future<void> initialize() async {
-    if (_recognizer != null) return;
+    if (!_isSupported || _recognizer != null) return;
 
     const languageCode = 'zh';
     final modelManager = mlkit.DigitalInkRecognizerModelManager();
@@ -32,6 +34,8 @@ class HandwritingRecognitionService {
 
   /// 识别笔画
   Future<List<String>> recognize(List<List<Offset>> strokes) async {
+    if (!_isSupported) return [];
+
     if (_recognizer == null) {
       await initialize();
     }
