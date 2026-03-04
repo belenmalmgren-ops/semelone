@@ -62,41 +62,46 @@ class DatabaseHelper {
         'CREATE INDEX idx_pinyin_stroke ON characters(pinyin, stroke_count)');
     print('[DatabaseHelper] ✓ 索引创建完成');
 
-    // 创建 FTS5 全文检索索引
-    await db.execute('''
-      CREATE VIRTUAL TABLE characters_fts USING fts5(
-        char,
-        pinyin,
-        definitions,
-        content='characters'
-      )
-    ''');
-    print('[DatabaseHelper] ✓ FTS5 全文检索索引创建完成');
+    // 创建 FTS5 全文检索索引（可选功能，不影响核心功能）
+    try {
+      await db.execute('''
+        CREATE VIRTUAL TABLE characters_fts USING fts5(
+          char,
+          pinyin,
+          definitions,
+          content='characters'
+        )
+      ''');
+      print('[DatabaseHelper] ✓ FTS5 全文检索索引创建完成');
 
-    // 创建触发器（自动同步 FTS 索引）
-    await db.execute('''
-      CREATE TRIGGER characters_ai AFTER INSERT ON characters BEGIN
-        INSERT INTO characters_fts(rowid, char, pinyin, definitions)
-        VALUES (new.id, new.char, new.pinyin, new.definitions);
-      END
-    ''');
+      // 创建触发器（自动同步 FTS 索引）
+      await db.execute('''
+        CREATE TRIGGER characters_ai AFTER INSERT ON characters BEGIN
+          INSERT INTO characters_fts(rowid, char, pinyin, definitions)
+          VALUES (new.id, new.char, new.pinyin, new.definitions);
+        END
+      ''');
 
-    await db.execute('''
-      CREATE TRIGGER characters_ad AFTER DELETE ON characters BEGIN
-        INSERT INTO characters_fts(characters_fts, rowid, char, pinyin, definitions)
-        VALUES('delete', old.id, old.char, old.pinyin, old.definitions);
-      END
-    ''');
+      await db.execute('''
+        CREATE TRIGGER characters_ad AFTER DELETE ON characters BEGIN
+          INSERT INTO characters_fts(characters_fts, rowid, char, pinyin, definitions)
+          VALUES('delete', old.id, old.char, old.pinyin, old.definitions);
+        END
+      ''');
 
-    await db.execute('''
-      CREATE TRIGGER characters_au AFTER UPDATE ON characters BEGIN
-        INSERT INTO characters_fts(characters_fts, rowid, char, pinyin, definitions)
-        VALUES('delete', old.id, old.char, old.pinyin, old.definitions);
-        INSERT INTO characters_fts(rowid, char, pinyin, definitions)
-        VALUES (new.id, new.char, new.pinyin, new.definitions);
-      END
-    ''');
-    print('[DatabaseHelper] ✓ FTS 触发器创建完成');
+      await db.execute('''
+        CREATE TRIGGER characters_au AFTER UPDATE ON characters BEGIN
+          INSERT INTO characters_fts(characters_fts, rowid, char, pinyin, definitions)
+          VALUES('delete', old.id, old.char, old.pinyin, old.definitions);
+          INSERT INTO characters_fts(rowid, char, pinyin, definitions)
+          VALUES (new.id, new.char, new.pinyin, new.definitions);
+        END
+      ''');
+      print('[DatabaseHelper] ✓ FTS 触发器创建完成');
+    } catch (e) {
+      print('[DatabaseHelper] ⚠️ FTS5 不可用（设备SQLite不支持），使用基础搜索: $e');
+      // FTS5 不可用不影响应用核心功能，继续运行
+    }
 
     print('[DatabaseHelper] 数据库初始化完成！');
   }
