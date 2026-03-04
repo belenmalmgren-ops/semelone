@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/theme_provider.dart';
+import 'learning_stats_page.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -44,6 +45,19 @@ class SettingsPage extends ConsumerWidget {
             groupValue: currentTheme,
             onChanged: (value) {
               if (value != null) ref.read(themeProvider.notifier).setTheme(value);
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.analytics),
+            title: const Text('学习统计'),
+            subtitle: const Text('查看学习进度和复习计划'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const LearningStatsPage()),
+              );
             },
           ),
           const Divider(),
