@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../data/models/character.dart';
 import '../../data/repositories/dict_repository.dart';
 import 'character_detail_page.dart';
+import 'settings_page.dart';
 
 /// 拼音搜索页面 - 主页面
 class PinyinSearchPage extends ConsumerStatefulWidget {
@@ -133,6 +134,16 @@ class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
             // TODO: 打开历史记录
           },
           tooltip: '历史',
+        ),
+        IconButton(
+          icon: const Icon(Icons.settings, color: Colors.white),
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SettingsPage()),
+            );
+          },
+          tooltip: '设置',
         ),
       ],
     );
