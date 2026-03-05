@@ -12,7 +12,6 @@ class AppThemes {
       primary: Color(0xFF3E2723),
       secondary: Color(0xFFD32F2F), // 朱红色
       surface: Color(0xFFF5F1E8),
-      background: Color(0xFFF5F1E8),
     ),
     appBarTheme: const AppBarTheme(
       backgroundColor: Color(0xFFF5F1E8),

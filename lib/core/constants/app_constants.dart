@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 /// 应用常量
 class AppConstants {
   AppConstants._();

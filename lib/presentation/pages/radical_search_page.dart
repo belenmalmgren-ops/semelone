@@ -35,9 +35,6 @@ class _RadicalSearchPageState extends ConsumerState<RadicalSearchPage> {
     setState(() => _isLoading = true);
 
     try {
-      // 获取所有部首
-      final radicals = await _repository.getAllRadicals();
-
       // 按笔画数分组（简化版：手动映射常用部首）
       _radicalsByStroke.clear();
 
@@ -67,7 +64,6 @@ class _RadicalSearchPageState extends ConsumerState<RadicalSearchPage> {
       _radicalsByStroke[17] = ['龠'];
 
       setState(() {
-        _radicals = radicals;
         _isLoading = false;
       });
     } catch (e) {
