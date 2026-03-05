@@ -7,6 +7,7 @@ import '../../data/models/character.dart';
 import '../../core/widgets/stroke_animation.dart';
 import '../../services/preferences_service.dart';
 import '../../data/models/user_preferences.dart';
+import '../../data/repositories/user_data_repository.dart';
 
 /// 汉字详情页 - 纸质字典风格
 class CharacterDetailPage extends ConsumerStatefulWidget {
@@ -23,13 +24,14 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
   bool _isFavorite = false;
   bool _isLoading = true;
   final PreferencesService _prefsService = PreferencesService.instance;
+  final UserDataRepository _userDataRepo = UserDataRepository.instance;
   UserPreferences _userPrefs = const UserPreferences();
 
   @override
   void initState() {
     super.initState();
     _loadPreferences();
-    // TODO: 检查是否已收藏
+    _checkFavorite();
     _isLoading = false;
   }
 
@@ -40,17 +42,30 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
     });
   }
 
-  void _toggleFavorite() {
+  Future<void> _checkFavorite() async {
+    await _userDataRepo.init();
+    setState(() {
+      _isFavorite = _userDataRepo.isFavorite(widget.character.char);
+    });
+  }
+
+  Future<void> _toggleFavorite() async {
+    if (_isFavorite) {
+      await _userDataRepo.removeFavorite(widget.character.char);
+    } else {
+      await _userDataRepo.addFavorite(widget.character.char, '默认');
+    }
     setState(() {
       _isFavorite = !_isFavorite;
     });
-    // TODO: 保存到数据库
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(_isFavorite ? '已收藏' : '已取消收藏'),
-        duration: const Duration(seconds: 1),
-      ),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_isFavorite ? '已收藏' : '已取消收藏'),
+          duration: const Duration(seconds: 1),
+        ),
+      );
+    }
   }
 
   void _shareCharacter() {
