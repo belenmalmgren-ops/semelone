@@ -14,6 +14,7 @@ class LearningStatsPage extends ConsumerStatefulWidget {
 class _LearningStatsPageState extends ConsumerState<LearningStatsPage> {
   final _repo = UserDataRepository.instance;
   List<LearningProgress> _allProgress = [];
+  List<SearchHistory> _history = [];
   bool _isLoading = true;
 
   @override
@@ -25,10 +26,44 @@ class _LearningStatsPageState extends ConsumerState<LearningStatsPage> {
   Future<void> _loadData() async {
     await _repo.init();
     final progress = _repo.getAllProgress();
+    final history = _repo.getHistory();
     setState(() {
       _allProgress = progress;
+      _history = history;
       _isLoading = false;
     });
+  }
+
+  int _getTotalCheckinDays() {
+    final dates = _history.map((h) {
+      final date = h.timestamp;
+      return DateTime(date.year, date.month, date.day);
+    }).toSet();
+    return dates.length;
+  }
+
+  int _getContinuousCheckinDays() {
+    if (_history.isEmpty) return 0;
+
+    final dates = _history.map((h) {
+      final date = h.timestamp;
+      return DateTime(date.year, date.month, date.day);
+    }).toSet().toList()..sort((a, b) => b.compareTo(a));
+
+    final today = DateTime.now();
+    final todayDate = DateTime(today.year, today.month, today.day);
+
+    if (!dates.contains(todayDate) && !dates.contains(todayDate.subtract(const Duration(days: 1)))) {
+      return 0;
+    }
+
+    int count = 0;
+    var checkDate = todayDate;
+    while (dates.contains(checkDate)) {
+      count++;
+      checkDate = checkDate.subtract(const Duration(days: 1));
+    }
+    return count;
   }
 
   @override
@@ -68,6 +103,8 @@ class _LearningStatsPageState extends ConsumerState<LearningStatsPage> {
       final diff = DateTime.now().difference(p.lastReview);
       return diff.inDays <= 7;
     }).length;
+    final continuousDays = _getContinuousCheckinDays();
+    final totalDays = _getTotalCheckinDays();
 
     return Card(
       child: Padding(
@@ -82,6 +119,14 @@ class _LearningStatsPageState extends ConsumerState<LearningStatsPage> {
             children: [
               _buildStatItem('累计学习', '$total 字'),
               _buildStatItem('本周学习', '$thisWeek 字'),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              _buildStatItem('连续打卡', '$continuousDays 天'),
+              _buildStatItem('累计打卡', '$totalDays 天'),
             ],
           ),
         ],
