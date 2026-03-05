@@ -52,64 +52,64 @@ class _SettingsPageState extends State<SettingsPage> {
             padding: EdgeInsets.all(16.0),
             child: Text('用户角色', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           ),
-          RadioListTile<UserRole>(
+          ListTile(
+            leading: Icon(
+              _currentRole == UserRole.primary ? Icons.check_circle : Icons.circle_outlined,
+              color: _currentRole == UserRole.primary ? const Color(0xFFD32F2F) : Colors.grey,
+            ),
             title: const Text('小学生'),
             subtitle: const Text('大字体、简化释义、拼音标注'),
-            value: UserRole.primary,
-            groupValue: _currentRole,
-            onChanged: (value) {
-              if (value != null) _setRole(value);
-            },
+            onTap: () => _setRole(UserRole.primary),
           ),
-          RadioListTile<UserRole>(
+          ListTile(
+            leading: Icon(
+              _currentRole == UserRole.middle ? Icons.check_circle : Icons.circle_outlined,
+              color: _currentRole == UserRole.middle ? const Color(0xFFD32F2F) : Colors.grey,
+            ),
             title: const Text('初中生'),
             subtitle: const Text('标准字体、完整释义'),
-            value: UserRole.middle,
-            groupValue: _currentRole,
-            onChanged: (value) {
-              if (value != null) _setRole(value);
-            },
+            onTap: () => _setRole(UserRole.middle),
           ),
-          RadioListTile<UserRole>(
+          ListTile(
+            leading: Icon(
+              _currentRole == UserRole.adult ? Icons.check_circle : Icons.circle_outlined,
+              color: _currentRole == UserRole.adult ? const Color(0xFFD32F2F) : Colors.grey,
+            ),
             title: const Text('成人'),
             subtitle: const Text('紧凑布局、详细信息'),
-            value: UserRole.adult,
-            groupValue: _currentRole,
-            onChanged: (value) {
-              if (value != null) _setRole(value);
-            },
+            onTap: () => _setRole(UserRole.adult),
           ),
           const Divider(),
           const Padding(
             padding: EdgeInsets.all(16.0),
             child: Text('主题设置', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           ),
-          RadioListTile<AppThemeMode>(
+          ListTile(
+            leading: Icon(
+              currentTheme == AppThemeMode.classic ? Icons.check_circle : Icons.circle_outlined,
+              color: currentTheme == AppThemeMode.classic ? const Color(0xFFD32F2F) : Colors.grey,
+            ),
             title: const Text('经典书籍'),
             subtitle: const Text('米黄纸张风格'),
-            value: AppThemeMode.classic,
-            groupValue: currentTheme,
-            onChanged: (value) {
-              if (value != null) ref.read(themeProvider.notifier).setTheme(value);
-            },
+            onTap: () => ref.read(themeProvider.notifier).setTheme(AppThemeMode.classic),
           ),
-          RadioListTile<AppThemeMode>(
+          ListTile(
+            leading: Icon(
+              currentTheme == AppThemeMode.modern ? Icons.check_circle : Icons.circle_outlined,
+              color: currentTheme == AppThemeMode.modern ? const Color(0xFFD32F2F) : Colors.grey,
+            ),
             title: const Text('现代简约'),
             subtitle: const Text('清新蓝色'),
-            value: AppThemeMode.modern,
-            groupValue: currentTheme,
-            onChanged: (value) {
-              if (value != null) ref.read(themeProvider.notifier).setTheme(value);
-            },
+            onTap: () => ref.read(themeProvider.notifier).setTheme(AppThemeMode.modern),
           ),
-          RadioListTile<AppThemeMode>(
+          ListTile(
+            leading: Icon(
+              currentTheme == AppThemeMode.dark ? Icons.check_circle : Icons.circle_outlined,
+              color: currentTheme == AppThemeMode.dark ? const Color(0xFFD32F2F) : Colors.grey,
+            ),
             title: const Text('深色模式'),
             subtitle: const Text('护眼深色'),
-            value: AppThemeMode.dark,
-            groupValue: currentTheme,
-            onChanged: (value) {
-              if (value != null) ref.read(themeProvider.notifier).setTheme(value);
-            },
+            onTap: () => ref.read(themeProvider.notifier).setTheme(AppThemeMode.dark),
           ),
           const Divider(),
           ListTile(
