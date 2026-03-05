@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -28,13 +29,13 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'xinhua_dict.db');
 
-    print('[DatabaseHelper] 数据库路径：$path');
+    debugPrint('[DatabaseHelper] 数据库路径：$path');
 
     // 检查数据库是否存在
     final exists = await databaseExists(path);
 
     if (!exists) {
-      print('[DatabaseHelper] 数据库不存在，从assets复制...');
+      debugPrint('[DatabaseHelper] 数据库不存在，从assets复制...');
       try {
         await Directory(dirname(path)).create(recursive: true);
       } catch (_) {}
@@ -43,7 +44,7 @@ class DatabaseHelper {
       ByteData data = await rootBundle.load('assets/db/xinhua_dict.db');
       List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
       await File(path).writeAsBytes(bytes, flush: true);
-      print('[DatabaseHelper] ✓ 数据库复制完成');
+      debugPrint('[DatabaseHelper] ✓ 数据库复制完成');
     }
 
     return await openDatabase(

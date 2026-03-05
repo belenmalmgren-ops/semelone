@@ -349,20 +349,59 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage>
     );
 
     if (selected != null) {
-      // TODO: 更新收藏分类
+      await _userData.addFavorite(character, selected);
+      setState(() {});
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('已移至「$selected」')),
+        );
+      }
     }
   }
 
   Future<void> _addNote(String character) async {
-    // TODO: 添加备注
+    final controller = TextEditingController();
+    final note = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('添加备注'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(hintText: '输入备注内容'),
+          maxLines: 3,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: const Text('确定'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+
+    if (note != null && note.isNotEmpty) {
+      await _userData.updateNote(character, note);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('备注已保存')),
+        );
+      }
+    }
   }
 
   Future<void> _addCategory() async {
+    final controller = TextEditingController();
     final name = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('新建分类'),
         content: TextField(
+          controller: controller,
           decoration: const InputDecoration(
             hintText: '分类名称',
             border: OutlineInputBorder(),
@@ -375,17 +414,13 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage>
             child: const Text('取消'),
           ),
           TextButton(
-            onPressed: () {
-              final text = (context.findRenderObject() as RenderObject?)
-                  ?.toString();
-              // TODO: 获取输入框内容
-              Navigator.pop(context, '新分类');
-            },
+            onPressed: () => Navigator.pop(context, controller.text),
             child: const Text('确定'),
           ),
         ],
       ),
     );
+    controller.dispose();
 
     if (name != null && name.isNotEmpty) {
       await _userData.addCategory(name);
@@ -393,12 +428,72 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage>
     }
   }
 
-  void _editCategory(String category) {
-    // TODO: 编辑分类
+  void _editCategory(String category) async {
+    final controller = TextEditingController(text: category);
+    final newName = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('编辑分类'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(border: OutlineInputBorder()),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text),
+            child: const Text('确定'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+
+    if (newName != null && newName.isNotEmpty && newName != category) {
+      final favorites = _userData.getFavoritesByCategory(category);
+      for (var fav in favorites) {
+        await _userData.addFavorite(fav.character, newName);
+      }
+      _loadCategories();
+      setState(() {});
+    }
   }
 
-  void _deleteCategory(String category) {
-    // TODO: 删除分类
+  void _deleteCategory(String category) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('删除分类'),
+        content: Text('确定删除「$category」分类吗？该分类下的收藏将被移至「默认」分类。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('删除', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final favorites = _userData.getFavoritesByCategory(category);
+      for (var fav in favorites) {
+        await _userData.addFavorite(fav.character, '默认');
+      }
+      _loadCategories();
+      setState(() {});
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('分类已删除')),
+        );
+      }
+    }
   }
 
   Future<void> _clearAll() async {
