@@ -121,7 +121,28 @@ class _StrokeSearchPageState extends State<StrokeSearchPage> {
       return const Center(child: CircularProgressIndicator());
     }
     if (_results.isEmpty) {
-      return const Center(child: Text('暂无结果'));
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.search_off, size: 80.w, color: const Color(0xFF8D6E63).withOpacity(0.3)),
+            SizedBox(height: 16.h),
+            Text('未找到相关汉字', style: TextStyle(fontSize: 16.sp, color: const Color(0xFF8D6E63).withOpacity(0.6))),
+            SizedBox(height: 8.h),
+            Text('试试其他笔画数', style: TextStyle(fontSize: 14.sp, color: const Color(0xFF8D6E63).withOpacity(0.4))),
+            SizedBox(height: 16.h),
+            TextButton.icon(
+              onPressed: () => setState(() {
+                _selectedStrokeCount = 1;
+                _results = [];
+              }),
+              icon: const Icon(Icons.clear),
+              label: const Text('重置'),
+              style: TextButton.styleFrom(foregroundColor: const Color(0xFFD32F2F)),
+            ),
+          ],
+        ),
+      );
     }
     return GridView.builder(
       padding: EdgeInsets.all(16.w),

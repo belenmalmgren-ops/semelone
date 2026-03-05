@@ -321,6 +321,28 @@ class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
                   fontSize: 16.sp,
                 ),
               ),
+              if (_lastQuery.isNotEmpty) ...[
+                SizedBox(height: 8.h),
+                Text(
+                  '试试其他拼音或检查拼写',
+                  style: TextStyle(
+                    color: const Color(0xFF3E2723).withOpacity(0.4),
+                    fontSize: 14.sp,
+                  ),
+                ),
+                SizedBox(height: 16.h),
+                TextButton.icon(
+                  onPressed: () {
+                    _controller.clear();
+                    _search('');
+                  },
+                  icon: const Icon(Icons.clear),
+                  label: const Text('清空搜索'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: const Color(0xFFD32F2F),
+                  ),
+                ),
+              ],
             ],
           ),
         ),

@@ -376,6 +376,28 @@ class _RadicalSearchPageState extends ConsumerState<RadicalSearchPage> {
                   color: const Color(0xFF8D6E63).withOpacity(0.6),
                 ),
               ),
+              SizedBox(height: 8.h),
+              Text(
+                '试试其他部首',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: const Color(0xFF8D6E63).withOpacity(0.4),
+                ),
+              ),
+              SizedBox(height: 16.h),
+              TextButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _selectedRadical = null;
+                    _searchResults = [];
+                  });
+                },
+                icon: const Icon(Icons.clear),
+                label: const Text('清空搜索'),
+                style: TextButton.styleFrom(
+                  foregroundColor: const Color(0xFFD32F2F),
+                ),
+              ),
             ],
           ),
         ),
