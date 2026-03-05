@@ -30,6 +30,8 @@ class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
   bool _isLoading = false;
   String _lastQuery = '';
 
+  static const List<String> _commonChars = ['的', '一', '是', '在', '不', '了', '有', '和', '人', '这', '中', '大'];
+
   @override
   void initState() {
     super.initState();
@@ -99,7 +101,10 @@ class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
         children: [
           _buildSearchBox(),
           _buildMethodSwitcher(),
-          _buildSearchResults(),
+          if (_lastQuery.isEmpty && _searchResults.isEmpty)
+            _buildCommonCharacters()
+          else
+            _buildSearchResults(),
         ],
       ),
     );
@@ -547,6 +552,52 @@ class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
             Text(label, style: TextStyle(color: isActive ? Colors.white : const Color(0xFF3E2723), fontSize: 12.sp)),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildCommonCharacters() {
+    return Expanded(
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(16.w),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text('常用字', style: TextStyle(fontSize: 18.sp, fontWeight: FontWeight.bold, color: const Color(0xFF3E2723))),
+            ),
+          ),
+          Expanded(
+            child: GridView.builder(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                mainAxisSpacing: 12.h,
+                crossAxisSpacing: 12.w,
+              ),
+              itemCount: _commonChars.length,
+              itemBuilder: (context, index) {
+                final char = _commonChars[index];
+                return GestureDetector(
+                  onTap: () async {
+                    final character = await _repository.getByChar(char);
+                    if (character != null && mounted) {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => CharacterDetailPage(character: character)));
+                    }
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: const Color(0xFF8D6E63)),
+                    ),
+                    child: Center(child: Text(char, style: TextStyle(fontSize: 32.sp, fontWeight: FontWeight.bold, color: const Color(0xFF3E2723)))),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
