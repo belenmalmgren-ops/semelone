@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:path/path.dart';
@@ -29,12 +30,27 @@ class DatabaseHelper {
 
     print('[DatabaseHelper] 数据库路径：$path');
 
+    // 检查数据库是否存在
+    final exists = await databaseExists(path);
+
+    if (!exists) {
+      print('[DatabaseHelper] 数据库不存在，从assets复制...');
+      try {
+        await Directory(dirname(path)).create(recursive: true);
+      } catch (_) {}
+
+      // 从assets复制预置数据库
+      ByteData data = await rootBundle.load('assets/db/xinhua_dict.db');
+      List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+      await File(path).writeAsBytes(bytes, flush: true);
+      print('[DatabaseHelper] ✓ 数据库复制完成');
+    }
+
     return await openDatabase(
       path,
       version: 1,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
-      // 性能优化：预连接池和缓存
       singleInstance: true,
     );
   }
