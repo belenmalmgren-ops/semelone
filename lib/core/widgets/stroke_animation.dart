@@ -36,7 +36,6 @@ class StrokeAnimationWidget extends StatefulWidget {
 class _StrokeAnimationWidgetState extends State<StrokeAnimationWidget>
     with TickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _animation;
 
   bool _isPlaying = false;
   double _speed = 1.0;
@@ -54,11 +53,6 @@ class _StrokeAnimationWidgetState extends State<StrokeAnimationWidget>
     _controller = AnimationController(
       duration: Duration(seconds: (5 * _speed).round()),
       vsync: this,
-    );
-
-    // 创建动画
-    _animation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
     _controller.addStatusListener((status) {

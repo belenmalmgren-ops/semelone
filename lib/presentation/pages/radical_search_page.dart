@@ -17,7 +17,6 @@ class RadicalSearchPage extends ConsumerStatefulWidget {
 class _RadicalSearchPageState extends ConsumerState<RadicalSearchPage> {
   final DictRepository _repository = DictRepository.instance;
 
-  List<String> _radicals = [];
   String? _selectedRadical;
   List<Character> _searchResults = [];
   bool _isLoading = true;

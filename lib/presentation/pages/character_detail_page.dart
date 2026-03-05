@@ -22,7 +22,6 @@ class CharacterDetailPage extends ConsumerStatefulWidget {
 
 class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
   bool _isFavorite = false;
-  bool _isLoading = true;
   final PreferencesService _prefsService = PreferencesService.instance;
   final UserDataRepository _userDataRepo = UserDataRepository.instance;
   UserPreferences _userPrefs = const UserPreferences();
@@ -36,7 +35,6 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
     _loadPreferences();
     _checkFavorite();
     _loadLearningProgress();
-    _isLoading = false;
   }
 
   Future<void> _loadPreferences() async {
