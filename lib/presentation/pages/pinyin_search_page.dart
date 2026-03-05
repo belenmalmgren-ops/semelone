@@ -5,6 +5,9 @@ import '../../data/models/character.dart';
 import '../../data/repositories/dict_repository.dart';
 import 'character_detail_page.dart';
 import 'settings_page.dart';
+import 'radical_search_page.dart';
+import 'stroke_search_page.dart';
+import 'handwriting_search_page.dart';
 
 /// 拼音搜索页面 - 主页面
 class PinyinSearchPage extends ConsumerStatefulWidget {
@@ -81,6 +84,7 @@ class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
       body: Column(
         children: [
           _buildSearchBox(),
+          _buildMethodSwitcher(),
           _buildSearchResults(),
         ],
       ),
@@ -421,6 +425,49 @@ class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  /// 查询方法切换器
+  Widget _buildMethodSwitcher() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+      color: Colors.white,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          _buildMethodButton('拼音', Icons.text_fields, true, null),
+          _buildMethodButton('部首', Icons.grid_on, false, () {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const RadicalSearchPage()));
+          }),
+          _buildMethodButton('笔画', Icons.edit, false, () {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const StrokeSearchPage()));
+          }),
+          _buildMethodButton('手写', Icons.draw, false, () {
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HandwritingSearchPage()));
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMethodButton(String label, IconData icon, bool isActive, VoidCallback? onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        decoration: BoxDecoration(
+          color: isActive ? const Color(0xFFD32F2F) : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: isActive ? Colors.white : const Color(0xFF3E2723), size: 24.w),
+            SizedBox(height: 4.h),
+            Text(label, style: TextStyle(color: isActive ? Colors.white : const Color(0xFF3E2723), fontSize: 12.sp)),
+          ],
         ),
       ),
     );
