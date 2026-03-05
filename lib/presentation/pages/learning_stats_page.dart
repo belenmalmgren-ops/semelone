@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/repositories/user_data_repository.dart';
 import '../../data/models/user_data.dart';
+import 'difficult_words_page.dart';
 
 class LearningStatsPage extends ConsumerStatefulWidget {
   const LearningStatsPage({super.key});
@@ -44,6 +45,18 @@ class _LearningStatsPageState extends ConsumerState<LearningStatsPage> {
                 _buildMasteryDistribution(),
                 const SizedBox(height: 16),
                 _buildReviewList(),
+                const SizedBox(height: 16),
+                Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.book, color: Color(0xFFD32F2F)),
+                    title: const Text('生字本'),
+                    subtitle: const Text('查看标记的难字'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () {
+                      Navigator.push(context, MaterialPageRoute(builder: (_) => const DifficultWordsPage()));
+                    },
+                  ),
+                ),
               ],
             ),
     );
