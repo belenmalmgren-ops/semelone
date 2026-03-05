@@ -8,6 +8,8 @@ import 'settings_page.dart';
 import 'radical_search_page.dart';
 import 'stroke_search_page.dart';
 import 'handwriting_search_page.dart';
+import 'history_page.dart';
+import 'favorites_page.dart';
 
 /// 拼音搜索页面 - 主页面
 class PinyinSearchPage extends ConsumerStatefulWidget {
@@ -128,14 +130,20 @@ class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
         IconButton(
           icon: const Icon(Icons.bookmark_border, color: Colors.white),
           onPressed: () {
-            // TODO: 打开收藏夹
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const FavoritesPage()),
+            );
           },
           tooltip: '收藏',
         ),
         IconButton(
           icon: const Icon(Icons.history, color: Colors.white),
           onPressed: () {
-            // TODO: 打开历史记录
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const HistoryPage()),
+            );
           },
           tooltip: '历史',
         ),
