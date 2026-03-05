@@ -89,7 +89,7 @@ class _HandwritingSearchPageState extends State<HandwritingSearchPage> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -116,7 +116,7 @@ class _HandwritingSearchPageState extends State<HandwritingSearchPage> {
                 color: const Color(0xFFFFF8E1),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: const Color(0xFF8D6E63).withOpacity(0.5),
+                  color: const Color(0xFF8D6E63).withValues(alpha: 0.5),
                   width: 1,
                 ),
               ),
@@ -250,7 +250,7 @@ class _HandwritingSearchPageState extends State<HandwritingSearchPage> {
             Icon(
               Icons.edit,
               size: 64.w,
-              color: const Color(0xFF8D6E63).withOpacity(0.5),
+              color: const Color(0xFF8D6E63).withValues(alpha: 0.5),
             ),
             SizedBox(height: 16.h),
             Text(
@@ -258,7 +258,7 @@ class _HandwritingSearchPageState extends State<HandwritingSearchPage> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14.sp,
-                color: const Color(0xFF8D6E63).withOpacity(0.6),
+                color: const Color(0xFF8D6E63).withValues(alpha: 0.6),
                 height: 1.5,
               ),
             ),

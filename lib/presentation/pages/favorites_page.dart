@@ -113,7 +113,7 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage>
                 decoration: BoxDecoration(
                   color: isSelected
                       ? const Color(0xFFD32F2F)
-                      : Colors.white.withOpacity(0.9),
+                      : Colors.white.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
@@ -146,14 +146,14 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage>
             Icon(
               Icons.bookmark_border,
               size: 80.w,
-              color: const Color(0xFF8D6E63).withOpacity(0.3),
+              color: const Color(0xFF8D6E63).withValues(alpha: 0.3),
             ),
             SizedBox(height: 16.h),
             Text(
               '暂无收藏',
               style: TextStyle(
                 fontSize: 16.sp,
-                color: const Color(0xFF8D6E63).withOpacity(0.6),
+                color: const Color(0xFF8D6E63).withValues(alpha: 0.6),
               ),
             ),
           ],
@@ -189,14 +189,14 @@ class _FavoritesPageState extends ConsumerState<FavoritesPage>
             Icon(
               Icons.folder_outlined,
               size: 80.w,
-              color: const Color(0xFF8D6E63).withOpacity(0.3),
+              color: const Color(0xFF8D6E63).withValues(alpha: 0.3),
             ),
             SizedBox(height: 16.h),
             Text(
               '暂无分类',
               style: TextStyle(
                 fontSize: 16.sp,
-                color: const Color(0xFF8D6E63).withOpacity(0.6),
+                color: const Color(0xFF8D6E63).withValues(alpha: 0.6),
               ),
             ),
           ],

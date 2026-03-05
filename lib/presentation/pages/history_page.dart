@@ -61,7 +61,7 @@ class _HistoryPageState extends State<HistoryPage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.history, size: 64.w, color: const Color(0xFF8D6E63).withOpacity(0.5)),
+          Icon(Icons.history, size: 64.w, color: const Color(0xFF8D6E63).withValues(alpha: 0.5)),
           SizedBox(height: 16.h),
           Text('暂无历史记录', style: TextStyle(fontSize: 16.sp, color: const Color(0xFF8D6E63))),
         ],

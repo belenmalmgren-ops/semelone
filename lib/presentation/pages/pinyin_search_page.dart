@@ -186,7 +186,7 @@ class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
         color: const Color(0xFF3E2723),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -205,7 +205,7 @@ class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
               decoration: InputDecoration(
                 hintText: '输入拼音搜索（如：zhang）',
                 hintStyle: TextStyle(
-                  color: Colors.white.withOpacity(0.5),
+                  color: Colors.white.withValues(alpha: 0.5),
                   fontSize: 16,
                 ),
                 prefixIcon: const Icon(Icons.search, color: Colors.white),
@@ -221,13 +221,13 @@ class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide(
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.white.withValues(alpha: 0.3),
                   ),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
                   borderSide: BorderSide(
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.white.withValues(alpha: 0.3),
                   ),
                 ),
                 focusedBorder: OutlineInputBorder(
@@ -235,7 +235,7 @@ class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
                   borderSide: const BorderSide(color: Colors.white, width: 2),
                 ),
                 filled: true,
-                fillColor: Colors.white.withOpacity(0.1),
+                fillColor: Colors.white.withValues(alpha: 0.1),
               ),
               textInputAction: TextInputAction.search,
               onChanged: _search,
@@ -255,7 +255,7 @@ class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
               SizedBox(height: 12.h),
               Row(
                 children: [
-                  Text('最近搜索', style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12.sp)),
+                  Text('最近搜索', style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 12.sp)),
                   const Spacer(),
                 ],
               ),
@@ -276,7 +276,7 @@ class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
                         child: Container(
                           padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
                           decoration: BoxDecoration(
-                            color: Colors.white.withOpacity(0.2),
+                            color: Colors.white.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(16),
                           ),
                           child: Text(history.character, style: const TextStyle(color: Colors.white, fontSize: 14)),
@@ -320,7 +320,7 @@ class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
             Text(
               label,
               style: TextStyle(
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
                 fontSize: 12,
               ),
             ),
@@ -364,13 +364,13 @@ class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
               Icon(
                 Icons.search_off,
                 size: 80.w,
-                color: const Color(0xFF3E2723).withOpacity(0.3),
+                color: const Color(0xFF3E2723).withValues(alpha: 0.3),
               ),
               SizedBox(height: 16.h),
               Text(
                 _lastQuery.isEmpty ? '输入拼音开始搜索' : '未找到相关汉字',
                 style: TextStyle(
-                  color: const Color(0xFF3E2723).withOpacity(0.5),
+                  color: const Color(0xFF3E2723).withValues(alpha: 0.5),
                   fontSize: 16.sp,
                 ),
               ),
@@ -379,7 +379,7 @@ class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
                 Text(
                   '试试其他拼音或检查拼写',
                   style: TextStyle(
-                    color: const Color(0xFF3E2723).withOpacity(0.4),
+                    color: const Color(0xFF3E2723).withValues(alpha: 0.4),
                     fontSize: 14.sp,
                   ),
                 ),
@@ -422,7 +422,7 @@ class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8),
         side: BorderSide(
-          color: const Color(0xFF8D6E63).withOpacity(0.3),
+          color: const Color(0xFF8D6E63).withValues(alpha: 0.3),
           width: 1,
         ),
       ),
@@ -483,7 +483,7 @@ class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
                         '【${char.radical}部】${char.strokeCount ?? '?'}画',
                         style: TextStyle(
                           fontSize: 12.sp,
-                          color: const Color(0xFF3E2723).withOpacity(0.6),
+                          color: const Color(0xFF3E2723).withValues(alpha: 0.6),
                         ),
                       ),
                     SizedBox(height: 4.h),
@@ -503,7 +503,7 @@ class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
               // 箭头
               Icon(
                 Icons.chevron_right,
-                color: const Color(0xFF3E2723).withOpacity(0.5),
+                color: const Color(0xFF3E2723).withValues(alpha: 0.5),
                 size: 24.w,
               ),
             ],

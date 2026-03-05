@@ -58,9 +58,9 @@ class _DifficultWordsPageState extends State<DifficultWordsPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.book_outlined, size: 80.w, color: const Color(0xFF3E2723).withOpacity(0.3)),
+                  Icon(Icons.book_outlined, size: 80.w, color: const Color(0xFF3E2723).withValues(alpha: 0.3)),
                   SizedBox(height: 16.h),
-                  Text('暂无难字', style: TextStyle(fontSize: 16.sp, color: const Color(0xFF3E2723).withOpacity(0.5))),
+                  Text('暂无难字', style: TextStyle(fontSize: 16.sp, color: const Color(0xFF3E2723).withValues(alpha: 0.5))),
                 ],
               ),
             )

@@ -125,11 +125,11 @@ class _StrokeSearchPageState extends State<StrokeSearchPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.search_off, size: 80.w, color: const Color(0xFF8D6E63).withOpacity(0.3)),
+            Icon(Icons.search_off, size: 80.w, color: const Color(0xFF8D6E63).withValues(alpha: 0.3)),
             SizedBox(height: 16.h),
-            Text('未找到相关汉字', style: TextStyle(fontSize: 16.sp, color: const Color(0xFF8D6E63).withOpacity(0.6))),
+            Text('未找到相关汉字', style: TextStyle(fontSize: 16.sp, color: const Color(0xFF8D6E63).withValues(alpha: 0.6))),
             SizedBox(height: 8.h),
-            Text('试试其他笔画数', style: TextStyle(fontSize: 14.sp, color: const Color(0xFF8D6E63).withOpacity(0.4))),
+            Text('试试其他笔画数', style: TextStyle(fontSize: 14.sp, color: const Color(0xFF8D6E63).withValues(alpha: 0.4))),
             SizedBox(height: 16.h),
             TextButton.icon(
               onPressed: () => setState(() {

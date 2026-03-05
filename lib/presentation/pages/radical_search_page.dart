@@ -222,12 +222,12 @@ class _RadicalSearchPageState extends ConsumerState<RadicalSearchPage> {
                 decoration: BoxDecoration(
                   color: isSelected
                       ? const Color(0xFFD32F2F)
-                      : Colors.white.withOpacity(0.9),
+                      : Colors.white.withValues(alpha: 0.9),
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
                     color: isSelected
                         ? const Color(0xFFD32F2F)
-                        : Colors.white.withOpacity(0.3),
+                        : Colors.white.withValues(alpha: 0.3),
                     width: 1,
                   ),
                 ),
@@ -260,7 +260,7 @@ class _RadicalSearchPageState extends ConsumerState<RadicalSearchPage> {
         color: Colors.white,
         border: Border(
           bottom: BorderSide(
-            color: const Color(0xFF8D6E63).withOpacity(0.3),
+            color: const Color(0xFF8D6E63).withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -340,14 +340,14 @@ class _RadicalSearchPageState extends ConsumerState<RadicalSearchPage> {
               Icon(
                 Icons.search_outlined,
                 size: 80.w,
-                color: const Color(0xFF8D6E63).withOpacity(0.3),
+                color: const Color(0xFF8D6E63).withValues(alpha: 0.3),
               ),
               SizedBox(height: 16.h),
               Text(
                 '请选择部首开始搜索',
                 style: TextStyle(
                   fontSize: 16.sp,
-                  color: const Color(0xFF8D6E63).withOpacity(0.6),
+                  color: const Color(0xFF8D6E63).withValues(alpha: 0.6),
                 ),
               ),
             ],
@@ -365,14 +365,14 @@ class _RadicalSearchPageState extends ConsumerState<RadicalSearchPage> {
               Icon(
                 Icons.search_off,
                 size: 80.w,
-                color: const Color(0xFF8D6E63).withOpacity(0.3),
+                color: const Color(0xFF8D6E63).withValues(alpha: 0.3),
               ),
               SizedBox(height: 16.h),
               Text(
                 '未找到相关汉字',
                 style: TextStyle(
                   fontSize: 16.sp,
-                  color: const Color(0xFF8D6E63).withOpacity(0.6),
+                  color: const Color(0xFF8D6E63).withValues(alpha: 0.6),
                 ),
               ),
               SizedBox(height: 8.h),
@@ -380,7 +380,7 @@ class _RadicalSearchPageState extends ConsumerState<RadicalSearchPage> {
                 '试试其他部首',
                 style: TextStyle(
                   fontSize: 14.sp,
-                  color: const Color(0xFF8D6E63).withOpacity(0.4),
+                  color: const Color(0xFF8D6E63).withValues(alpha: 0.4),
                 ),
               ),
               SizedBox(height: 16.h),
