@@ -19,10 +19,10 @@ class AppThemes {
       foregroundColor: Color(0xFF3E2723),
       elevation: 0,
     ),
-    cardTheme: CardTheme(
-      color: const Color(0xFFFFFBF0),
+    cardTheme: const CardThemeData(
+      color: Color(0xFFFFFBF0),
       elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(8))),
     ),
   );
 

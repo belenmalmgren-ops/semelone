@@ -23,7 +23,7 @@ class _LearningStatsPageState extends ConsumerState<LearningStatsPage> {
 
   Future<void> _loadData() async {
     await _repo.init();
-    final progress = await _repo.getAllLearningProgress();
+    final progress = _repo.getAllProgress();
     setState(() {
       _allProgress = progress;
       _isLoading = false;
@@ -59,7 +59,9 @@ class _LearningStatsPageState extends ConsumerState<LearningStatsPage> {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
-        children: [
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           const Text('学习概览', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           Row(
@@ -70,6 +72,7 @@ class _LearningStatsPageState extends ConsumerState<LearningStatsPage> {
             ],
           ),
         ],
+        ),
       ),
     );
   }
