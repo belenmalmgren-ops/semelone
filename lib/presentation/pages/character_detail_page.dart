@@ -26,12 +26,16 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
   final PreferencesService _prefsService = PreferencesService.instance;
   final UserDataRepository _userDataRepo = UserDataRepository.instance;
   UserPreferences _userPrefs = const UserPreferences();
+  int _reviewCount = 0;
+  int _masteryLevel = 0;
+  bool _isMarkedDifficult = false;
 
   @override
   void initState() {
     super.initState();
     _loadPreferences();
     _checkFavorite();
+    _loadLearningProgress();
     _isLoading = false;
   }
 
@@ -47,6 +51,17 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
     setState(() {
       _isFavorite = _userDataRepo.isFavorite(widget.character.char);
     });
+  }
+
+  Future<void> _loadLearningProgress() async {
+    final progress = _userDataRepo.getProgress(widget.character.char);
+    if (progress != null) {
+      setState(() {
+        _reviewCount = progress.reviewCount;
+        _masteryLevel = progress.masteryLevel;
+        _isMarkedDifficult = progress.isMarkedDifficult;
+      });
+    }
   }
 
   Future<void> _toggleFavorite() async {
@@ -85,6 +100,32 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
     );
   }
 
+  Future<void> _addToReview() async {
+    await _userDataRepo.addReview(widget.character.char);
+    await _loadLearningProgress();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('已加入复习'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+    }
+  }
+
+  Future<void> _markDifficult() async {
+    await _userDataRepo.markAsDifficult(widget.character.char);
+    await _loadLearningProgress();
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(_isMarkedDifficult ? '已标记为难字' : '已取消标记'),
+          duration: const Duration(seconds: 1),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final char = widget.character;
@@ -105,6 +146,8 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
             _buildWordsSection(char),
             // 造字本义
             if (char.origin != null) _buildOriginSection(char),
+            // 学习进度
+            _buildLearningSection(),
           ],
         ),
       ),
@@ -484,6 +527,59 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
                 ),
               );
             }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 学习进度区域
+  Widget _buildLearningSection() {
+    return Container(
+      margin: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF8E1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFF8D6E63), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '学习进度：掌握程度 $_masteryLevel/5 | 复习次数 $_reviewCount',
+            style: TextStyle(
+              fontSize: 14 * _userPrefs.fontScale,
+              color: const Color(0xFF3E2723),
+            ),
+          ),
+          SizedBox(height: 12.h),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _addToReview,
+                  icon: const Icon(Icons.add_circle_outline),
+                  label: const Text('加入复习'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFD32F2F),
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: _markDifficult,
+                  icon: Icon(_isMarkedDifficult ? Icons.flag : Icons.flag_outlined),
+                  label: Text(_isMarkedDifficult ? '已标记' : '标记难字'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: _isMarkedDifficult ? const Color(0xFF8D6E63) : const Color(0xFF3E2723),
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
