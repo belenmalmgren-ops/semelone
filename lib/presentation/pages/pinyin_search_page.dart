@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../data/models/character.dart';
 import '../../data/repositories/dict_repository.dart';
+import '../../data/repositories/user_data_repository.dart';
+import '../../data/models/user_data.dart';
 import 'character_detail_page.dart';
 import 'settings_page.dart';
 import 'radical_search_page.dart';
@@ -21,8 +23,10 @@ class PinyinSearchPage extends ConsumerStatefulWidget {
 
 class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
   final DictRepository _repository = DictRepository.instance;
+  final UserDataRepository _userDataRepo = UserDataRepository.instance;
   final TextEditingController _controller = TextEditingController();
   List<Character> _searchResults = [];
+  List<SearchHistory> _recentSearches = [];
   bool _isLoading = false;
   String _lastQuery = '';
 
@@ -30,12 +34,20 @@ class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
   void initState() {
     super.initState();
     _initRepository();
+    _loadRecentSearches();
   }
 
   Future<void> _initRepository() async {
     await _repository.init();
     final stats = await _repository.getStats();
     print('[PinyinSearch] 词库加载完成：${stats['total']} 个汉字');
+  }
+
+  Future<void> _loadRecentSearches() async {
+    await _userDataRepo.init();
+    setState(() {
+      _recentSearches = _userDataRepo.getHistory().take(5).toList();
+    });
   }
 
   @override
@@ -234,6 +246,42 @@ class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
                 _buildQuickSearchChip('zhang', '全拼'),
               ],
             ),
+            if (_recentSearches.isNotEmpty) ...[
+              SizedBox(height: 12.h),
+              Row(
+                children: [
+                  Text('最近搜索', style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 12.sp)),
+                  const Spacer(),
+                ],
+              ),
+              SizedBox(height: 8.h),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: _recentSearches.map((history) {
+                    return Padding(
+                      padding: EdgeInsets.only(right: 8.w),
+                      child: GestureDetector(
+                        onTap: () async {
+                          final char = await _repository.getByChar(history.character);
+                          if (char != null && mounted) {
+                            Navigator.push(context, MaterialPageRoute(builder: (_) => CharacterDetailPage(character: char)));
+                          }
+                        },
+                        child: Container(
+                          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Text(history.character, style: const TextStyle(color: Colors.white, fontSize: 14)),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
           ],
         ),
       ),
