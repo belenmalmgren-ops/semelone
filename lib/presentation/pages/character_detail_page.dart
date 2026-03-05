@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../data/models/character.dart';
 import '../../core/widgets/stroke_animation.dart';
+import '../../services/preferences_service.dart';
+import '../../data/models/user_preferences.dart';
 
 /// 汉字详情页 - 纸质字典风格
 class CharacterDetailPage extends ConsumerStatefulWidget {
@@ -18,12 +20,22 @@ class CharacterDetailPage extends ConsumerStatefulWidget {
 class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
   bool _isFavorite = false;
   bool _isLoading = true;
+  final PreferencesService _prefsService = PreferencesService.instance;
+  UserPreferences _userPrefs = const UserPreferences();
 
   @override
   void initState() {
     super.initState();
+    _loadPreferences();
     // TODO: 检查是否已收藏
     _isLoading = false;
+  }
+
+  Future<void> _loadPreferences() async {
+    await _prefsService.init();
+    setState(() {
+      _userPrefs = _prefsService.preferences;
+    });
   }
 
   void _toggleFavorite() {
@@ -76,9 +88,9 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
       ),
       title: Text(
         char.char,
-        style: const TextStyle(
+        style: TextStyle(
           color: Colors.white,
-          fontSize: 20,
+          fontSize: 20 * _userPrefs.fontScale,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -159,7 +171,7 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
           Text(
             char.char,
             style: TextStyle(
-              fontSize: 80.sp,
+              fontSize: 80.sp * _userPrefs.fontScale,
               fontWeight: FontWeight.bold,
               color: const Color(0xFF3E2723),
               height: 1.2,
@@ -170,7 +182,7 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
           Text(
             char.pinyin,
             style: TextStyle(
-              fontSize: 24.sp,
+              fontSize: 24.sp * _userPrefs.fontScale,
               fontWeight: FontWeight.bold,
               color: const Color(0xFFD32F2F), // 朱红色
             ),
@@ -199,17 +211,17 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
                     ),
                     child: Text(
                       '【${char.radical}】部',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: 14,
+                        fontSize: 14 * _userPrefs.fontScale,
                       ),
                     ),
                   ),
                 SizedBox(width: 12.w),
                 Text(
                   '${char.strokeCount ?? '?'}画',
-                  style: const TextStyle(
-                    fontSize: 16,
+                  style: TextStyle(
+                    fontSize: 16 * _userPrefs.fontScale,
                     color: Color(0xFF3E2723),
                   ),
                 ),
@@ -217,8 +229,8 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
                   SizedBox(width: 12.w),
                   Text(
                     '${char.structure}',
-                    style: const TextStyle(
-                      fontSize: 14,
+                    style: TextStyle(
+                      fontSize: 14 * _userPrefs.fontScale,
                       color: Color(0xFF3E2723),
                     ),
                   ),
@@ -258,10 +270,10 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
                 ),
               ),
               SizedBox(width: 8.w),
-              const Text(
+              Text(
                 '笔顺',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 18 * _userPrefs.fontScale,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF3E2723),
                 ),
@@ -326,7 +338,9 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
             ],
           ),
           SizedBox(height: 12.h),
-          ...char.definitions!.asMap().entries.map((entry) {
+          ...(_userPrefs.simplifyDefinitions
+              ? char.definitions!.take(2).toList()
+              : char.definitions!).asMap().entries.map((entry) {
             final index = entry.key;
             final definition = entry.value;
             return Padding(
@@ -344,9 +358,9 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
                     alignment: Alignment.center,
                     child: Text(
                       '${index + 1}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
-                        fontSize: 14,
+                        fontSize: 14 * _userPrefs.fontScale,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -355,8 +369,8 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
                   Expanded(
                     child: Text(
                       definition,
-                      style: const TextStyle(
-                        fontSize: 16,
+                      style: TextStyle(
+                        fontSize: 16 * _userPrefs.fontScale,
                         color: Color(0xFF3E2723),
                         height: 1.5,
                       ),
@@ -402,10 +416,10 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
                 ),
               ),
               SizedBox(width: 8.w),
-              const Text(
+              Text(
                 '组词',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 18 * _userPrefs.fontScale,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF3E2723),
                 ),
@@ -429,8 +443,8 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
                 ),
                 child: Text(
                   word,
-                  style: const TextStyle(
-                    fontSize: 14,
+                  style: TextStyle(
+                    fontSize: 14 * _userPrefs.fontScale,
                     color: Color(0xFF3E2723),
                   ),
                 ),
@@ -473,10 +487,10 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
                 ),
               ),
               SizedBox(width: 8.w),
-              const Text(
+              Text(
                 '造字本义',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 18 * _userPrefs.fontScale,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF3E2723),
                 ),
@@ -486,8 +500,8 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
           SizedBox(height: 12.h),
           Text(
             char.origin!,
-            style: const TextStyle(
-              fontSize: 14,
+            style: TextStyle(
+              fontSize: 14 * _userPrefs.fontScale,
               color: Color(0xFF3E2723),
               height: 1.6,
             ),
