@@ -28,6 +28,7 @@ dependencies:
   # 工具
   connectivity_plus: ^5.0.2
   path: ^1.8.3
+  share_plus: ^7.0.0
 
   # 手写识别
   google_mlkit_digital_ink_recognition: ^0.12.0

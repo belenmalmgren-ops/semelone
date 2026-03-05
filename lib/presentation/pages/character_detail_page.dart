@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../data/models/character.dart';
 import '../../core/widgets/stroke_animation.dart';
 import '../../services/preferences_service.dart';
@@ -47,6 +49,23 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
       SnackBar(
         content: Text(_isFavorite ? '已收藏' : '已取消收藏'),
         duration: const Duration(seconds: 1),
+      ),
+    );
+  }
+
+  void _shareCharacter() {
+    final char = widget.character;
+    final definitions = char.definitions?.take(3).join('\n') ?? '';
+    final text = '${char.char}\n拼音：${char.pinyin}\n\n释义：\n$definitions';
+    Share.share(text);
+  }
+
+  void _copyCharacter() {
+    Clipboard.setData(ClipboardData(text: widget.character.char));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('已复制'),
+        duration: Duration(seconds: 1),
       ),
     );
   }
@@ -111,10 +130,10 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
           onSelected: (value) {
             switch (value) {
               case 'share':
-                // TODO: 分享
+                _shareCharacter();
                 break;
               case 'copy':
-                // TODO: 复制
+                _copyCharacter();
                 break;
             }
           },
