@@ -8,6 +8,7 @@ import '../../core/widgets/stroke_animation.dart';
 import '../../services/preferences_service.dart';
 import '../../data/models/user_preferences.dart';
 import '../../data/repositories/user_data_repository.dart';
+import '../../services/tts_service.dart';
 
 /// 汉字详情页 - 纸质字典风格
 class CharacterDetailPage extends ConsumerStatefulWidget {
@@ -24,10 +25,12 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
   bool _isFavorite = false;
   final PreferencesService _prefsService = PreferencesService.instance;
   final UserDataRepository _userDataRepo = UserDataRepository.instance;
+  final TTSService _ttsService = TTSService();
   UserPreferences _userPrefs = const UserPreferences();
   int _reviewCount = 0;
   int _masteryLevel = 0;
   bool _isMarkedDifficult = false;
+  bool _isSpeaking = false;
 
   @override
   void initState() {
@@ -35,6 +38,20 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
     _loadPreferences();
     _checkFavorite();
     _loadLearningProgress();
+    _ttsService.init();
+  }
+
+  @override
+  void dispose() {
+    _ttsService.dispose();
+    super.dispose();
+  }
+
+  void _speakCharacter() async {
+    final char = widget.character;
+    setState(() => _isSpeaking = true);
+    await _ttsService.speak(char.char);
+    setState(() => _isSpeaking = false);
   }
 
   Future<void> _loadPreferences() async {
@@ -129,22 +146,16 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
     final char = widget.character;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F1E8), // 米黄色纸张背景
+      backgroundColor: const Color(0xFFF5F1E8),
       appBar: _buildAppBar(char),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // 汉字大字区域
             _buildCharacterHeader(char),
-            // 笔顺演示区域
             _buildStrokeSection(char),
-            // 释义区域
             _buildDefinitionSection(char),
-            // 组词区域
             _buildWordsSection(char),
-            // 造字本义
             if (char.origin != null) _buildOriginSection(char),
-            // 学习进度
             _buildLearningSection(),
           ],
         ),
@@ -152,10 +163,9 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
     );
   }
 
-  /// 顶部导航栏
   PreferredSizeWidget _buildAppBar(Character char) {
     return AppBar(
-      backgroundColor: const Color(0xFF3E2723), // 深棕色墨色
+      backgroundColor: const Color(0xFF3E2723),
       elevation: 2,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -170,7 +180,6 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
         ),
       ),
       actions: [
-        // 收藏按钮
         IconButton(
           icon: Icon(
             _isFavorite ? Icons.star : Icons.star_border,
@@ -179,7 +188,6 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
           onPressed: _toggleFavorite,
           tooltip: _isFavorite ? '取消收藏' : '收藏',
         ),
-        // 更多选项
         PopupMenuButton<String>(
           icon: const Icon(Icons.more_vert, color: Colors.white),
           color: const Color(0xFFF5F1E8),
@@ -220,7 +228,6 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
     );
   }
 
-  /// 汉字大字头部区域
   Widget _buildCharacterHeader(Character char) {
     return Container(
       margin: EdgeInsets.all(16.w),
@@ -242,7 +249,6 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
       ),
       child: Column(
         children: [
-          // 大字
           Text(
             char.char,
             style: TextStyle(
@@ -253,17 +259,30 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
             ),
           ),
           SizedBox(height: 16.h),
-          // 拼音
-          Text(
-            char.pinyin,
-            style: TextStyle(
-              fontSize: 24.sp * _userPrefs.fontScale,
-              fontWeight: FontWeight.bold,
-              color: const Color(0xFFD32F2F), // 朱红色
-            ),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                char.pinyin,
+                style: TextStyle(
+                  fontSize: 24.sp * _userPrefs.fontScale,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFFD32F2F),
+                ),
+              ),
+              SizedBox(width: 8.w),
+              IconButton(
+                icon: Icon(
+                  _isSpeaking ? Icons.volume_up : Icons.volume_off,
+                  color: const Color(0xFFD32F2F),
+                  size: 28,
+                ),
+                onPressed: _isSpeaking ? null : _speakCharacter,
+                tooltip: '朗读',
+              ),
+            ],
           ),
           SizedBox(height: 12.h),
-          // 部首和笔画
           Container(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
             decoration: BoxDecoration(
@@ -318,13 +337,12 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
     );
   }
 
-  /// 笔顺演示区域
   Widget _buildStrokeSection(Character char) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
-        color: const Color(0xFFFFF8E1), // 米黄色背景
+        color: const Color(0xFFFFF8E1),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           color: const Color(0xFF8D6E63),
@@ -356,7 +374,6 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
             ],
           ),
           SizedBox(height: 12.h),
-          // 笔顺动画组件
           SizedBox(
             height: 200.h,
             child: StrokeAnimationWidget(
@@ -371,7 +388,6 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
     );
   }
 
-  /// 释义区域
   Widget _buildDefinitionSection(Character char) {
     if (char.definitions == null || char.definitions!.isEmpty) {
       return const SizedBox.shrink();
@@ -454,13 +470,12 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
                 ],
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
   }
 
-  /// 组词区域
   Widget _buildWordsSection(Character char) {
     if (char.words == null || char.words!.isEmpty) {
       return const SizedBox.shrink();
@@ -531,7 +546,6 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
     );
   }
 
-  /// 学习进度区域
   Widget _buildLearningSection() {
     return Container(
       margin: EdgeInsets.all(16.w),
@@ -584,7 +598,6 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
     );
   }
 
-  /// 造字本义区域
   Widget _buildOriginSection(Character char) {
     if (char.origin == null) {
       return const SizedBox.shrink();

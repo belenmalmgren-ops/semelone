@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../idioms_page.dart';
+import '../favorites_page.dart';
+import '../history_page.dart';
 
 /// 主页 - 查字入口
 class HomePage extends StatefulWidget {
@@ -18,16 +22,35 @@ class _HomePageState extends State<HomePage> {
         title: const Text('小方新华字典'),
         centerTitle: true,
         actions: [
+          // 成语词典入口
+          IconButton(
+            icon: const Icon(Icons.library_books),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const IdiomsPage()),
+              );
+            },
+            tooltip: '成语词典',
+          ),
+          // 历史记录
           IconButton(
             icon: const Icon(Icons.history),
             onPressed: () {
-              // TODO: 跳转到历史记录
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const HistoryPage()),
+              );
             },
           ),
+          // 收藏夹
           IconButton(
             icon: const Icon(Icons.star),
             onPressed: () {
-              // TODO: 跳转到收藏夹
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const FavoritesPage()),
+              );
             },
           ),
         ],
@@ -53,7 +76,7 @@ class _HomePageState extends State<HomePage> {
               },
             ),
             const SizedBox(height: 24),
-            
+
             // 检索方式切换
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -63,6 +86,28 @@ class _HomePageState extends State<HomePage> {
                 _buildSearchButton('笔画', Icons.draw),
                 _buildSearchButton('手写', Icons.edit),
               ],
+            ),
+
+            // 成语词典快捷入口
+            Container(
+              margin: EdgeInsets.only(top: 24.h),
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const IdiomsPage()),
+                  );
+                },
+                icon: const Icon(Icons.library_books, color: Color(0xFF3E2723)),
+                label: const Text(
+                  '成语词典',
+                  style: TextStyle(color: Color(0xFF3E2723), fontSize: 16),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFFF5F1E8),
+                  padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 12.h),
+                ),
+              ),
             ),
             
             const Spacer(),
