@@ -11,6 +11,8 @@ class Character {
   final List<String>? examples;
   final String? origin;
   final String? strokeOrder;
+  final String? synonyms;
+  final String? antonyms;
 
   Character({
     required this.id,
@@ -24,6 +26,8 @@ class Character {
     this.examples,
     this.origin,
     this.strokeOrder,
+    this.synonyms,
+    this.antonyms,
   });
 
   factory Character.fromMap(Map<String, dynamic> map) {
@@ -45,6 +49,8 @@ class Character {
           : null,
       origin: map['origin'],
       strokeOrder: map['stroke_order'],
+      synonyms: map['synonyms'],
+      antonyms: map['antonyms'],
     );
   }
 

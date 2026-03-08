@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../idioms_page.dart';
-import '../favorites_page.dart';
-import '../history_page.dart';
-import '../poems_page.dart';
-import '../new_words_page.dart';
+import '../pinyin_search_page.dart';
+import '../radical_search_page.dart';
+import '../stroke_search_page.dart';
+import '../handwriting_search_page.dart';
 
 /// 主页 - 查字入口
 class HomePage extends StatefulWidget {
@@ -23,62 +22,10 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('小方新华字典'),
         centerTitle: true,
-        actions: [
-          // 古诗词
-          IconButton(
-            icon: const Icon(Icons.auto_stories),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const PoemsPage()),
-              );
-            },
-            tooltip: '古诗词',
-          ),
-          // 生字本
-          IconButton(
-            icon: const Icon(Icons.book),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const NewWordsPage()),
-              );
-            },
-            tooltip: '生字本',
-          ),
-          // 成语词典入口
-          IconButton(
-            icon: const Icon(Icons.library_books),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const IdiomsPage()),
-              );
-            },
-            tooltip: '成语词典',
-          ),
-          // 历史记录
-          IconButton(
-            icon: const Icon(Icons.history),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const HistoryPage()),
-              );
-            },
-          ),
-          // 收藏夹
-          IconButton(
-            icon: const Icon(Icons.star),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const FavoritesPage()),
-              );
-            },
-          ),
-        ],
+        backgroundColor: const Color(0xFF3E2723),
+        foregroundColor: Colors.white,
       ),
+      backgroundColor: const Color(0xFFF5F1E8),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -95,9 +42,6 @@ class _HomePageState extends State<HomePage> {
                 filled: true,
                 fillColor: Colors.white,
               ),
-              onChanged: (value) {
-                // TODO: 实时搜索
-              },
             ),
             const SizedBox(height: 24),
 
@@ -105,37 +49,23 @@ class _HomePageState extends State<HomePage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildSearchButton('拼音', Icons.keyboard),
-                _buildSearchButton('部首', Icons.apps),
-                _buildSearchButton('笔画', Icons.draw),
-                _buildSearchButton('手写', Icons.edit),
+                _buildSearchButton('拼音', Icons.keyboard, () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const PinyinSearchPage()));
+                }),
+                _buildSearchButton('部首', Icons.apps, () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const RadicalSearchPage()));
+                }),
+                _buildSearchButton('笔画', Icons.draw, () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const StrokeSearchPage()));
+                }),
+                _buildSearchButton('手写', Icons.edit, () {
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const HandwritingSearchPage()));
+                }),
               ],
             ),
 
-            // 成语词典快捷入口
-            Container(
-              margin: EdgeInsets.only(top: 24.h),
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const IdiomsPage()),
-                  );
-                },
-                icon: const Icon(Icons.library_books, color: Color(0xFF3E2723)),
-                label: const Text(
-                  '成语词典',
-                  style: TextStyle(color: Color(0xFF3E2723), fontSize: 16),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFF5F1E8),
-                  padding: EdgeInsets.symmetric(horizontal: 32.w, vertical: 12.h),
-                ),
-              ),
-            ),
-            
             const Spacer(),
-            
+
             // 欢迎文字
             const Column(
               children: [
@@ -151,12 +81,12 @@ class _HomePageState extends State<HomePage> {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  '项目骨架搭建完成 ✓',
+                  '9,578字 · 30,903成语 · 84,082诗词',
                   style: TextStyle(color: Colors.grey),
                 ),
               ],
             ),
-            
+
             const Spacer(),
           ],
         ),
@@ -164,21 +94,24 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildSearchButton(String label, IconData icon) {
-    return Column(
-      children: [
-        Container(
-          width: 60,
-          height: 60,
-          decoration: BoxDecoration(
-            color: const Color(0xFF3E2723),
-            borderRadius: BorderRadius.circular(12),
+  Widget _buildSearchButton(String label, IconData icon, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Column(
+        children: [
+          Container(
+            width: 60,
+            height: 60,
+            decoration: BoxDecoration(
+              color: const Color(0xFF3E2723),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: Colors.white, size: 28),
           ),
-          child: Icon(icon, color: Colors.white, size: 28),
-        ),
-        const SizedBox(height: 8),
-        Text(label, style: const TextStyle(fontSize: 12)),
-      ],
+          const SizedBox(height: 8),
+          Text(label, style: const TextStyle(fontSize: 12)),
+        ],
+      ),
     );
   }
 

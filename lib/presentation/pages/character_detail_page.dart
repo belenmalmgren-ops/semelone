@@ -154,6 +154,7 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
             _buildCharacterHeader(char),
             _buildStrokeSection(char),
             _buildDefinitionSection(char),
+            if (char.synonyms != null || char.antonyms != null) _buildSynonymsSection(char),
             _buildWordsSection(char),
             if (char.origin != null) _buildOriginSection(char),
             _buildLearningSection(),
@@ -471,6 +472,114 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
               ),
             );
           }),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSynonymsSection(Character char) {
+    return Container(
+      margin: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFF8D6E63), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (char.synonyms != null) ...[
+            Row(
+              children: [
+                Container(
+                  width: 4.w,
+                  height: 16.h,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD32F2F),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Text(
+                  '近义词',
+                  style: TextStyle(
+                    fontSize: 18 * _userPrefs.fontScale,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF3E2723),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 12.h),
+            Wrap(
+              spacing: 8.w,
+              runSpacing: 8.h,
+              children: char.synonyms!.split(',').map((word) {
+                return Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF5F1E8),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFF8D6E63), width: 1),
+                  ),
+                  child: Text(
+                    word,
+                    style: TextStyle(
+                      fontSize: 14 * _userPrefs.fontScale,
+                      color: const Color(0xFF3E2723),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+          if (char.synonyms != null && char.antonyms != null) SizedBox(height: 16.h),
+          if (char.antonyms != null) ...[
+            Row(
+              children: [
+                Container(
+                  width: 4.w,
+                  height: 16.h,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFD32F2F),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Text(
+                  '反义词',
+                  style: TextStyle(
+                    fontSize: 18 * _userPrefs.fontScale,
+                    fontWeight: FontWeight.bold,
+                    color: const Color(0xFF3E2723),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 12.h),
+            Wrap(
+              spacing: 8.w,
+              runSpacing: 8.h,
+              children: char.antonyms!.split(',').map((word) {
+                return Container(
+                  padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 6.h),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF5F1E8),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFF8D6E63), width: 1),
+                  ),
+                  child: Text(
+                    word,
+                    style: TextStyle(
+                      fontSize: 14 * _userPrefs.fontScale,
+                      color: const Color(0xFF3E2723),
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
         ],
       ),
     );
