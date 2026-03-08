@@ -18,9 +18,16 @@ class _RadicalSearchPageState extends ConsumerState<RadicalSearchPage> {
   final DictRepository _repository = DictRepository.instance;
 
   String? _selectedRadical;
+  int? _selectedRadicalStroke; // 部首笔画数
   List<Character> _searchResults = [];
   bool _isLoading = true;
   int? _selectedStrokeCount;
+
+  // 常用部首列表
+  static const List<String> _commonRadicals = [
+    '氵', '木', '口', '扌', '亻', '女', '艹', '讠', '钅', '土',
+    '日', '月', '心', '宀', '纟', '竹', '米', '禾', '火', '石'
+  ];
 
   // 部首按笔画数分组
   final Map<int, List<String>> _radicalsByStroke = {};
@@ -74,13 +81,16 @@ class _RadicalSearchPageState extends ConsumerState<RadicalSearchPage> {
 
   /// 搜索指定部首的汉字
   Future<void> _searchRadical(String radical) async {
+    print('[RadicalSearch] 点击部首：$radical');
     setState(() {
       _selectedRadical = radical;
       _searchResults = [];
     });
+    print('[RadicalSearch] _selectedRadical已设置为：$_selectedRadical');
 
     try {
       final results = await _repository.searchByRadical(radical, _selectedStrokeCount);
+      print('[RadicalSearch] 查询到 ${results.length} 个结果');
       setState(() {
         _searchResults = results;
       });
@@ -108,13 +118,22 @@ class _RadicalSearchPageState extends ConsumerState<RadicalSearchPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F1E8),
       appBar: _buildAppBar(),
-      body: Column(
-        children: [
-          _buildRadicalGrid(),
-          _buildStrokeFilter(),
-          _buildResults(),
-        ],
-      ),
+      body: _selectedRadical != null
+          ? Column(
+              children: [
+                _buildStrokeFilter(),
+                _buildResults(),
+              ],
+            )
+          : SingleChildScrollView(
+              child: Column(
+                children: [
+                  _buildCommonRadicals(),
+                  _buildRadicalStrokeSelector(),
+                  if (_selectedRadicalStroke != null) _buildRadicalGrid(),
+                ],
+              ),
+            ),
     );
   }
 
@@ -141,35 +160,73 @@ class _RadicalSearchPageState extends ConsumerState<RadicalSearchPage> {
     );
   }
 
-  /// 部首网格
-  Widget _buildRadicalGrid() {
-    if (_isLoading) {
-      return const SizedBox(
-        height: 200,
-        child: Center(child: CircularProgressIndicator()),
-      );
-    }
+  /// 常用部首快捷区
+  Widget _buildCommonRadicals() {
+    if (_isLoading) return const SizedBox.shrink();
 
     return Container(
-      padding: EdgeInsets.all(12.w),
-      color: const Color(0xFF3E2723),
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF9C4),
+        border: Border(
+          bottom: BorderSide(
+            color: const Color(0xFF3E2723),
+            width: 2,
+          ),
+        ),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            '选择部首',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
+          Row(
+            children: [
+              Icon(Icons.star, color: const Color(0xFFD32F2F), size: 20.w),
+              SizedBox(width: 8.w),
+              Text(
+                '常用部首',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF3E2723),
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: 8.h),
+          SizedBox(height: 12.h),
           Wrap(
-            spacing: 6.w,
-            runSpacing: 6.h,
-            children: _radicalsByStroke.entries.map((entry) {
-              return _buildStrokeGroup(entry.key, entry.value);
+            spacing: 8.w,
+            runSpacing: 8.h,
+            children: _commonRadicals.map((radical) {
+              final isSelected = radical == _selectedRadical;
+              return GestureDetector(
+                onTap: () => _searchRadical(radical),
+                child: Container(
+                  width: 48.w,
+                  height: 48.w,
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? const Color(0xFFD32F2F)
+                        : Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: const Color(0xFFD32F2F),
+                      width: 2,
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      radical,
+                      style: TextStyle(
+                        fontSize: 24.sp,
+                        color: isSelected
+                            ? Colors.white
+                            : const Color(0xFF3E2723),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              );
             }).toList(),
           ),
         ],
@@ -177,79 +234,171 @@ class _RadicalSearchPageState extends ConsumerState<RadicalSearchPage> {
     );
   }
 
-  /// 笔画分组
-  Widget _buildStrokeGroup(int strokeCount, List<String> radicals) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          height: 24.h,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFD32F2F),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  '$strokeCount 画',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
+  /// 第一屏：选择部首笔画数
+  Widget _buildRadicalStrokeSelector() {
+    if (_isLoading) return const SizedBox.shrink();
+
+    return Container(
+      margin: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '第一步：选择部首笔画数',
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold,
+              color: const Color(0xFF3E2723),
+            ),
+          ),
+          SizedBox(height: 12.h),
+          Wrap(
+            spacing: 8.w,
+            runSpacing: 8.h,
+            children: List.generate(17, (i) {
+              final stroke = i + 1;
+              final isSelected = stroke == _selectedRadicalStroke;
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _selectedRadicalStroke = stroke;
+                    _selectedRadical = null;
+                    _searchResults = [];
+                  });
+                },
+                child: Container(
+                  width: 48.w,
+                  height: 48.w,
+                  decoration: BoxDecoration(
+                    color: isSelected
+                        ? const Color(0xFF3E2723)
+                        : const Color(0xFFF5F1E8),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: const Color(0xFF3E2723),
+                      width: 2,
+                    ),
                   ),
+                  child: Center(
+                    child: Text(
+                      '$stroke',
+                      style: TextStyle(
+                        color: isSelected ? Colors.white : const Color(0xFF3E2723),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.sp,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 部首网格
+  Widget _buildRadicalGrid() {
+    if (_isLoading || _selectedRadicalStroke == null) {
+      return const SizedBox.shrink();
+    }
+
+    final radicals = _radicalsByStroke[_selectedRadicalStroke] ?? [];
+
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 16.w),
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: const Color(0xFF3E2723),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    _selectedRadicalStroke = null;
+                    _selectedRadical = null;
+                    _searchResults = [];
+                  });
+                },
+                child: Container(
+                  padding: EdgeInsets.all(6.w),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Icon(Icons.arrow_back, color: Colors.white, size: 20.w),
+                ),
+              ),
+              SizedBox(width: 12.w),
+              Text(
+                '第二步：选择部首（$_selectedRadicalStroke画）',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15.sp,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
-        ),
-        SizedBox(height: 4.h),
-        Wrap(
-          spacing: 6.w,
-          runSpacing: 6.h,
-          children: radicals.map((radical) {
-            final isSelected = radical == _selectedRadical;
-            return GestureDetector(
-              onTap: () => _searchRadical(radical),
-              child: Container(
-                width: 36.w,
-                height: 36.w,
-                decoration: BoxDecoration(
-                  color: isSelected
-                      ? const Color(0xFFD32F2F)
-                      : Colors.white.withValues(alpha: 0.9),
-                  borderRadius: BorderRadius.circular(6),
-                  border: Border.all(
+          SizedBox(height: 12.h),
+          Wrap(
+            spacing: 8.w,
+            runSpacing: 8.h,
+            children: radicals.map((radical) {
+              final isSelected = radical == _selectedRadical;
+              return GestureDetector(
+                onTap: () => _searchRadical(radical),
+                child: Container(
+                  width: 48.w,
+                  height: 48.w,
+                  decoration: BoxDecoration(
                     color: isSelected
                         ? const Color(0xFFD32F2F)
-                        : Colors.white.withValues(alpha: 0.3),
-                    width: 1,
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    radical,
-                    style: TextStyle(
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.bold,
+                        : Colors.white.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
                       color: isSelected
-                          ? Colors.white
-                          : const Color(0xFF3E2723),
+                          ? const Color(0xFFD32F2F)
+                          : Colors.white.withValues(alpha: 0.3),
+                      width: 2,
+                    ),
+                  ),
+                  child: Center(
+                    child: Text(
+                      radical,
+                      style: TextStyle(
+                        fontSize: 24.sp,
+                        fontWeight: FontWeight.bold,
+                        color: isSelected
+                            ? Colors.white
+                            : const Color(0xFF3E2723),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            );
-          }).toList(),
-        ),
-        SizedBox(height: 8.h),
-      ],
+              );
+            }).toList(),
+          ),
+        ],
+      ),
     );
   }
 
   /// 笔画数筛选
   Widget _buildStrokeFilter() {
+    if (_selectedRadical == null) return const SizedBox.shrink();
+
     return Container(
       padding: EdgeInsets.all(12.w),
       decoration: BoxDecoration(
@@ -264,13 +413,25 @@ class _RadicalSearchPageState extends ConsumerState<RadicalSearchPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            '按笔画数筛选',
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              color: Color(0xFF3E2723),
-            ),
+          Row(
+            children: [
+              const Text(
+                '按笔画数筛选',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF3E2723),
+                ),
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                '（可选）',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: const Color(0xFF8D6E63).withValues(alpha: 0.6),
+                ),
+              ),
+            ],
           ),
           SizedBox(height: 8.h),
           Wrap(
@@ -278,16 +439,16 @@ class _RadicalSearchPageState extends ConsumerState<RadicalSearchPage> {
             runSpacing: 8.h,
             children: [
               _buildStrokeChip('全部', null),
-              _buildStrokeChip('1 画', 1),
-              _buildStrokeChip('2 画', 2),
-              _buildStrokeChip('3 画', 3),
-              _buildStrokeChip('4 画', 4),
-              _buildStrokeChip('5 画', 5),
-              _buildStrokeChip('6 画', 6),
-              _buildStrokeChip('7 画', 7),
-              _buildStrokeChip('8 画', 8),
-              _buildStrokeChip('9 画', 9),
-              _buildStrokeChip('10 画 +', 10),
+              _buildStrokeChip('1画', 1),
+              _buildStrokeChip('2画', 2),
+              _buildStrokeChip('3画', 3),
+              _buildStrokeChip('4画', 4),
+              _buildStrokeChip('5画', 5),
+              _buildStrokeChip('6画', 6),
+              _buildStrokeChip('7画', 7),
+              _buildStrokeChip('8画', 8),
+              _buildStrokeChip('9画', 9),
+              _buildStrokeChip('10画+', 10),
             ],
           ),
         ],

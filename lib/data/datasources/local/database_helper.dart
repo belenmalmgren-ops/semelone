@@ -11,7 +11,7 @@ class DatabaseHelper {
   static Database? _database;
 
   DatabaseHelper._init() {
-    if (Platform.isWindows || Platform.isLinux) {
+    if (!kIsWeb && (Platform.isWindows || Platform.isLinux)) {
       sqfliteFfiInit();
       databaseFactory = databaseFactoryFfi;
     }
@@ -47,10 +47,10 @@ class DatabaseHelper {
       debugPrint('[DatabaseHelper] ✓ 数据库复制完成');
     }
 
+    // 直接打开数据库，不使用onCreate（assets数据库已有完整表结构）
     return await openDatabase(
       path,
       version: 1,
-      onCreate: _onCreate,
       onUpgrade: _onUpgrade,
       singleInstance: true,
     );

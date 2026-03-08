@@ -3,6 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../idioms_page.dart';
 import '../favorites_page.dart';
 import '../history_page.dart';
+import '../poems_page.dart';
+import '../new_words_page.dart';
 
 /// 主页 - 查字入口
 class HomePage extends StatefulWidget {
@@ -22,6 +24,28 @@ class _HomePageState extends State<HomePage> {
         title: const Text('小方新华字典'),
         centerTitle: true,
         actions: [
+          // 古诗词
+          IconButton(
+            icon: const Icon(Icons.auto_stories),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const PoemsPage()),
+              );
+            },
+            tooltip: '古诗词',
+          ),
+          // 生字本
+          IconButton(
+            icon: const Icon(Icons.book),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const NewWordsPage()),
+              );
+            },
+            tooltip: '生字本',
+          ),
           // 成语词典入口
           IconButton(
             icon: const Icon(Icons.library_books),

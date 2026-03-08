@@ -66,43 +66,82 @@ class _StrokeSearchPageState extends State<StrokeSearchPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('选择笔画数', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
+          Row(
+            children: [
+              Icon(Icons.edit, color: const Color(0xFF3E2723), size: 20.w),
+              SizedBox(width: 8.w),
+              Text(
+                '数一数这个字有几画？',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.bold,
+                  color: const Color(0xFF3E2723),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16.h),
+          _buildStrokeGroup('1-5画（常用字）', 1, 5, const Color(0xFF4CAF50)),
           SizedBox(height: 12.h),
-          Wrap(
-            spacing: 8.w,
-            runSpacing: 8.h,
-            children: List.generate(30, (i) {
-              final count = i + 1;
-              final isSelected = count == _selectedStrokeCount;
-              return GestureDetector(
-                onTap: () {
-                  setState(() => _selectedStrokeCount = count);
-                  _search();
-                },
-                child: Container(
-                  width: 48.w,
-                  height: 48.w,
-                  decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFF3E2723) : const Color(0xFFF5F1E8),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: const Color(0xFF3E2723)),
-                  ),
-                  child: Center(
-                    child: Text(
-                      '$count',
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        color: isSelected ? Colors.white : const Color(0xFF3E2723),
-                        fontWeight: FontWeight.bold,
-                      ),
+          _buildStrokeGroup('6-10画（中等复杂）', 6, 10, const Color(0xFF2196F3)),
+          SizedBox(height: 12.h),
+          _buildStrokeGroup('11-15画（复杂字）', 11, 15, const Color(0xFFFF9800)),
+          SizedBox(height: 12.h),
+          _buildStrokeGroup('16-20画（生僻字）', 16, 20, const Color(0xFFE91E63)),
+          SizedBox(height: 12.h),
+          _buildStrokeGroup('21-30画（极生僻）', 21, 30, const Color(0xFF9C27B0)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildStrokeGroup(String label, int start, int end, Color color) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 13.sp,
+            fontWeight: FontWeight.w600,
+            color: color,
+          ),
+        ),
+        SizedBox(height: 8.h),
+        Wrap(
+          spacing: 6.w,
+          runSpacing: 6.h,
+          children: List.generate(end - start + 1, (i) {
+            final count = start + i;
+            final isSelected = count == _selectedStrokeCount;
+            return GestureDetector(
+              onTap: () {
+                setState(() => _selectedStrokeCount = count);
+                _search();
+              },
+              child: Container(
+                width: 48.w,
+                height: 48.w,
+                decoration: BoxDecoration(
+                  color: isSelected ? color : const Color(0xFFF5F1E8),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: color, width: 2),
+                ),
+                child: Center(
+                  child: Text(
+                    '$count',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      color: isSelected ? Colors.white : const Color(0xFF3E2723),
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-              );
-            }),
-          ),
-        ],
-      ),
+              ),
+            );
+          }),
+        ),
+      ],
     );
   }
 

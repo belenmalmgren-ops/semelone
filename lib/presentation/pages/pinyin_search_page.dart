@@ -251,6 +251,76 @@ class _PinyinSearchPageState extends ConsumerState<PinyinSearchPage> {
                 _buildQuickSearchChip('zhang', '全拼'),
               ],
             ),
+            SizedBox(height: 12.h),
+            // 不会读提示区
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.15),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.3),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.help_outline, color: Colors.white, size: 18.w),
+                  SizedBox(width: 8.w),
+                  Text(
+                    '不会读这个字？',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 13.sp,
+                    ),
+                  ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: () => Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const RadicalSearchPage()),
+                    ),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD32F2F),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '部首查字',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8.w),
+                  GestureDetector(
+                    onTap: () => Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (_) => const StrokeSearchPage()),
+                    ),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFD32F2F),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '笔画查字',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             if (_recentSearches.isNotEmpty) ...[
               SizedBox(height: 12.h),
               Row(
