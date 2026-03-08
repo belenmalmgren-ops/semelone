@@ -1,4 +1,5 @@
 import 'dart:io' if (dart.library.html) 'dart:html';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
@@ -61,9 +62,11 @@ class DatabaseHelper {
       }
 
       try {
-        ByteData data = await rootBundle.load('assets/db/xinhua_dict.db');
-        debugPrint('[DatabaseHelper] assets加载成功，大小: ${data.lengthInBytes} bytes');
-        List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+        ByteData data = await rootBundle.load('assets/db/xinhua_dict.db.gz');
+        debugPrint('[DatabaseHelper] 压缩文件加载成功: ${data.lengthInBytes} bytes');
+        List<int> compressed = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+        List<int> bytes = GZipCodec().decode(compressed);
+        debugPrint('[DatabaseHelper] 解压完成: ${bytes.length} bytes');
         await File(path).writeAsBytes(bytes, flush: true);
         debugPrint('[DatabaseHelper] ✓ 数据库复制完成');
       } catch (e) {
