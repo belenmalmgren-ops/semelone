@@ -56,12 +56,22 @@ class DatabaseHelper {
       debugPrint('[DatabaseHelper] 数据库不存在，从assets复制...');
       try {
         await Directory(dirname(path)).create(recursive: true);
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('[DatabaseHelper] 创建目录失败: $e');
+      }
 
-      ByteData data = await rootBundle.load('assets/db/xinhua_dict.db');
-      List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-      await File(path).writeAsBytes(bytes, flush: true);
-      debugPrint('[DatabaseHelper] ✓ 数据库复制完成');
+      try {
+        ByteData data = await rootBundle.load('assets/db/xinhua_dict.db');
+        debugPrint('[DatabaseHelper] assets加载成功，大小: ${data.lengthInBytes} bytes');
+        List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+        await File(path).writeAsBytes(bytes, flush: true);
+        debugPrint('[DatabaseHelper] ✓ 数据库复制完成');
+      } catch (e) {
+        debugPrint('[DatabaseHelper] ❌ 数据库复制失败: $e');
+        rethrow;
+      }
+    } else {
+      debugPrint('[DatabaseHelper] 数据库已存在，跳过复制');
     }
 
     return await openDatabase(
@@ -69,7 +79,18 @@ class DatabaseHelper {
       version: 1,
       onUpgrade: _onUpgrade,
       singleInstance: true,
-    );
+    ).then((db) async {
+      // 验证数据库
+      try {
+        final count = Sqflite.firstIntValue(
+          await db.rawQuery('SELECT COUNT(*) FROM characters')
+        ) ?? 0;
+        debugPrint('[DatabaseHelper] ✓ 数据库打开成功，共 $count 条记录');
+      } catch (e) {
+        debugPrint('[DatabaseHelper] ❌ 数据库验证失败: $e');
+      }
+      return db;
+    });
   }
 
   /// 创建数据库表
