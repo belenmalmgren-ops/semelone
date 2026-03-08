@@ -4,6 +4,8 @@ import '../pinyin_search_page.dart';
 import '../radical_search_page.dart';
 import '../stroke_search_page.dart';
 import '../handwriting_search_page.dart';
+import '../character_detail_page.dart';
+import '../../data/repositories/dict_repository.dart';
 
 /// 主页 - 查字入口
 class HomePage extends StatefulWidget {
@@ -15,6 +17,35 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
+  final DictRepository _dictRepo = DictRepository.instance;
+
+  @override
+  void initState() {
+    super.initState();
+    _dictRepo.init();
+  }
+
+  Future<void> _handleSearch(String query) async {
+    if (query.isEmpty) return;
+
+    // 判断是汉字还是拼音
+    final isHanzi = RegExp(r'^[\u4e00-\u9fa5]$').hasMatch(query);
+
+    if (isHanzi) {
+      // 直接查询汉字
+      final char = await _dictRepo.getByChar(query);
+      if (char != null && mounted) {
+        Navigator.push(context, MaterialPageRoute(builder: (_) => CharacterDetailPage(character: char)));
+      } else if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('未找到该汉字')));
+      }
+    } else {
+      // 按拼音搜索
+      if (mounted) {
+        Navigator.push(context, MaterialPageRoute(builder: (_) => const PinyinSearchPage()));
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +73,7 @@ class _HomePageState extends State<HomePage> {
                 filled: true,
                 fillColor: Colors.white,
               ),
+              onSubmitted: _handleSearch,
             ),
             const SizedBox(height: 24),
 
