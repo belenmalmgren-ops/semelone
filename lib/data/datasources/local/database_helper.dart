@@ -1,8 +1,9 @@
-import 'dart:io';
+import 'dart:io' if (dart.library.html) 'dart:html';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:path/path.dart';
 
 /// 数据库帮助类 - 负责初始化和版本管理
@@ -11,7 +12,9 @@ class DatabaseHelper {
   static Database? _database;
 
   DatabaseHelper._init() {
-    if (!kIsWeb && (Platform.isWindows || Platform.isLinux)) {
+    if (kIsWeb) {
+      databaseFactory = databaseFactoryFfiWeb;
+    } else if (Platform.isWindows || Platform.isLinux) {
       sqfliteFfiInit();
       databaseFactory = databaseFactoryFfi;
     }
@@ -26,12 +29,27 @@ class DatabaseHelper {
 
   /// 初始化数据库
   Future<Database> _initDatabase() async {
+    if (kIsWeb) {
+      // Web平台：直接从assets加载到内存数据库
+      debugPrint('[DatabaseHelper] Web平台：从assets加载数据库');
+      ByteData data = await rootBundle.load('assets/db/xinhua_dict.db');
+      List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+      return await databaseFactoryFfiWeb.openDatabase(
+        'xinhua_dict.db',
+        options: OpenDatabaseOptions(
+          version: 1,
+          onUpgrade: _onUpgrade,
+          singleInstance: true,
+        ),
+      );
+    }
+
+    // 移动/桌面平台：使用文件系统
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'xinhua_dict.db');
 
     debugPrint('[DatabaseHelper] 数据库路径：$path');
 
-    // 检查数据库是否存在
     final exists = await databaseExists(path);
 
     if (!exists) {
@@ -40,14 +58,12 @@ class DatabaseHelper {
         await Directory(dirname(path)).create(recursive: true);
       } catch (_) {}
 
-      // 从assets复制预置数据库
       ByteData data = await rootBundle.load('assets/db/xinhua_dict.db');
       List<int> bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
       await File(path).writeAsBytes(bytes, flush: true);
       debugPrint('[DatabaseHelper] ✓ 数据库复制完成');
     }
 
-    // 直接打开数据库，不使用onCreate（assets数据库已有完整表结构）
     return await openDatabase(
       path,
       version: 1,
