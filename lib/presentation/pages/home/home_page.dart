@@ -5,7 +5,7 @@ import '../radical_search_page.dart';
 import '../stroke_search_page.dart';
 import '../handwriting_search_page.dart';
 import '../character_detail_page.dart';
-import '../../data/repositories/dict_repository.dart';
+import '../../../data/repositories/dict_repository.dart';
 
 /// 主页 - 查字入口
 class HomePage extends StatefulWidget {
