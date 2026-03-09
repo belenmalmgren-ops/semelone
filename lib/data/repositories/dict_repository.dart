@@ -53,7 +53,7 @@ class DictRepository {
         structure: maps[i]['structure'] as String?,
         definitions: (maps[i]['definitions'] as String?)?.split('|'),
         words: (maps[i]['words'] as String?)?.split('|'),
-        examples: (maps[i]['examples'] as String?)?.split('|'),
+        examples: (maps[i]['examples'] as String?)?.split('###'),
         origin: maps[i]['origin'] as String?,
         strokeOrder: maps[i]['stroke_order'] as String?,
       );
@@ -264,9 +264,11 @@ class DictRepository {
       structure: map['structure'] as String?,
       definitions: (map['definitions'] as String?)?.split('|'),
       words: (map['words'] as String?)?.split('|'),
-      examples: (map['examples'] as String?)?.split('|'),
+      examples: (map['examples'] as String?)?.split('###'),
       origin: map['origin'] as String?,
       strokeOrder: map['stroke_order'] as String?,
+      synonyms: map['synonyms'] as String?,
+      antonyms: map['antonyms'] as String?,
     );
   }
 

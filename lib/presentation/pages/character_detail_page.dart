@@ -655,6 +655,100 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
     );
   }
 
+  Widget _buildIdiomsSection() {
+    if (widget.character.examples == null || widget.character.examples!.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      margin: EdgeInsets.all(16.w),
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFF8D6E63), width: 1),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 4.w,
+                height: 16.h,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFD32F2F),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              SizedBox(width: 8.w),
+              Text(
+                '相关成语',
+                style: TextStyle(
+                  fontSize: 18 * _userPrefs.fontScale,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF3E2723),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12.h),
+          ...widget.character.examples!.map((idiomData) {
+            final parts = idiomData.split('|');
+            if (parts.length < 2) return const SizedBox.shrink();
+
+            final idiom = parts[0];
+            final explanation = parts.length > 1 ? parts[1] : '';
+            final example = parts.length > 2 ? parts[2] : '';
+
+            return Container(
+              margin: EdgeInsets.only(bottom: 12.h),
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5F1E8),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    idiom,
+                    style: TextStyle(
+                      fontSize: 16 * _userPrefs.fontScale,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFFD32F2F),
+                    ),
+                  ),
+                  if (explanation.isNotEmpty) ...[
+                    SizedBox(height: 6.h),
+                    Text(
+                      explanation,
+                      style: TextStyle(
+                        fontSize: 14 * _userPrefs.fontScale,
+                        color: const Color(0xFF3E2723),
+                      ),
+                    ),
+                  ],
+                  if (example.isNotEmpty) ...[
+                    SizedBox(height: 6.h),
+                    Text(
+                      '例句：$example',
+                      style: TextStyle(
+                        fontSize: 13 * _userPrefs.fontScale,
+                        color: const Color(0xFF5D4037),
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            );
+          }).toList(),
+        ],
+      ),
+    );
+  }
+
   Widget _buildLearningSection() {
     return Container(
       margin: EdgeInsets.all(16.w),

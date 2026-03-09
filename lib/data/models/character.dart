@@ -45,7 +45,7 @@ class Character {
           ? (map['words'] as String).split('|')
           : null,
       examples: map['examples'] != null
-          ? (map['examples'] as String).split('|')
+          ? (map['examples'] as String).split('###')
           : null,
       origin: map['origin'],
       strokeOrder: map['stroke_order'],
