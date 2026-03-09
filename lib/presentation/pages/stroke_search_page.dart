@@ -183,35 +183,66 @@ class _StrokeSearchPageState extends State<StrokeSearchPage> {
         ),
       );
     }
-    return GridView.builder(
+
+    // 按笔画数分组
+    final grouped = <int, List<Character>>{};
+    for (var char in _results) {
+      final stroke = char.strokeCount ?? _selectedStrokeCount;
+      grouped.putIfAbsent(stroke, () => []).add(char);
+    }
+    final sortedKeys = grouped.keys.toList()..sort();
+
+    return ListView.builder(
       padding: EdgeInsets.all(16.w),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        mainAxisSpacing: 12.h,
-        crossAxisSpacing: 12.w,
-      ),
-      itemCount: _results.length,
-      itemBuilder: (context, index) {
-        final char = _results[index];
-        return GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => CharacterDetailPage(character: char)),
-            );
-          },
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Center(
+      itemCount: sortedKeys.length,
+      itemBuilder: (context, groupIndex) {
+        final strokeCount = sortedKeys[groupIndex];
+        final chars = grouped[strokeCount]!;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 8.h),
               child: Text(
-                char.char,
-                style: TextStyle(fontSize: 32.sp, fontWeight: FontWeight.bold),
+                '$strokeCount 画 (${chars.length}个)',
+                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold, color: const Color(0xFF3E2723)),
               ),
             ),
-          ),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                mainAxisSpacing: 12.h,
+                crossAxisSpacing: 12.w,
+              ),
+              itemCount: chars.length,
+              itemBuilder: (context, index) {
+                final char = chars[index];
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => CharacterDetailPage(character: char)),
+                    );
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(
+                      child: Text(
+                        char.char,
+                        style: TextStyle(fontSize: 32.sp, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+            SizedBox(height: 16.h),
+          ],
         );
       },
     );

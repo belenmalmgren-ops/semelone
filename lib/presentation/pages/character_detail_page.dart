@@ -380,7 +380,7 @@ class _CharacterDetailPageState extends ConsumerState<CharacterDetailPage> {
             child: StrokeAnimationWidget(
               character: char.char,
               svgPath: 'assets/strokes/${char.char}.svg',
-              autoPlay: false,
+              autoPlay: true,
               strokeCount: char.strokeCount,
             ),
           ),
